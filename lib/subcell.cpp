@@ -41,11 +41,14 @@ CSubcell::CSubcell(int sizex, int sizey, int sizez, int fmesh, double xii)
   ny = sizey;
   nz = sizez;
 
+
   NUM_Ttubule = nx * ny * nz;
   finemesh = fmesh;
   xi = xii;
   n = nn = 0;
   layer = 2; // *) xw: the default # layer
+
+  //Mito indexing 
 
   //parameters
   cao = 1.8; // [mM]
@@ -186,6 +189,13 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   nnxnny = nnx * nny;
   nn = nnx * nny * nnz;
 
+  //Mito Grid Dimensions
+  nx_mito = nx / nxover_nxmito ;
+  ny_mito = ny / nyover_nymito ; 
+  nz_mito = nz / nzover_nzmito ; 
+  n_mito = nx_mito * ny_mito * nz_mito; 
+  //std::cout << nx_mito << "," << ny_mito << "," << nz_mito << "," << n_mito << "\n"; 
+
   //cell parameters
   vi =  1.5 * 0.5 / finemesh3;
   vs = 0.025 / finemesh3;
@@ -226,6 +236,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   Myosin_Mg_vec = new double [nn];
   SRB_vec       = new double [nn];
 
+  psi_mito = new double[n_mito] ;
+  ca_mito  = new double[n_mito] ;
 
   for (int id = 0; id < nn; ++id)
   {
@@ -235,6 +247,13 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     Myosin_Mg_vec[id] = 1.381982e-1;  //  // unit of buffers: mM
     SRB_vec[id]       = 2.143165e-3;  //  // unit of buffers: mM
   }
+
+  for (int id = 0; id < n_mito; ++id)
+  {
+    psi_mito[id] = 180 ; // -180 mV delta psi mito IC 
+    ca_mito[id] = 0.05 ; //0.05 micromolar IC from Yaniv 2012 
+  }
+  //cout << psi_mito[0] << "," << ca_mito[0] << "\n" ;
   //  cats=new double [nn];
 
 #ifdef ___DETERMINISTIC
@@ -512,6 +531,8 @@ void CSubcell::delarray(void)
   delete [] cp;
   delete [] cjsr;
   delete [] cnsr;
+  delete [] psi_mito ;
+  delete [] ca_mito ; 
 
 #ifdef ___DETERMINISTIC
   delete [] c1;
@@ -1496,8 +1517,12 @@ void CSubcell::set_CRU_type() {
       }
 
     }
-
 }
+
+void CSubcell::assign_mito() {
+  
+}
+
 
 
 

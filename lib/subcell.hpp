@@ -166,6 +166,15 @@ public:
 
   int n;//the number of CRU x*y*z
   int nn;//the number of fine mesh
+  //Mito assignment grid 
+  int nx_mito;
+  int ny_mito;
+  int nz_mito;
+  int nxover_nxmito = 1; 
+  int nyover_nymito = 2;
+  int nzover_nzmito = 2; 
+  int n_mito; 
+
 
   static const double vjsr;
   double vnsr;
@@ -203,6 +212,8 @@ public:
   //  double *ci,*cs,*cp,*cjsr,*cnsr,*cati,*cats;
   double *ci, *cs, *cp, *cjsr, *cnsr, *cati;
   double *cscp1, *cscp2, *Itr;
+  double *ca_mito, *psi_mito ; 
+
 #ifdef ___DETERMINISTIC
   double *c1, *c2, *i1ca, *i1ba, *i2ca, *i2ba, *fryr1, *fryr2, *fryr3;
 #else
@@ -444,6 +455,7 @@ public:
 template<typename U>
 void output_map( U *map, const char outputfile[]);
 void set_CRU_type();
+void assign_mito() ; 
 
 
 
