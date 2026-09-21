@@ -278,7 +278,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   tubule_flag = new double [n];
 
   CRU_type = new int [n];
-
+  CRU_mito_assignment = new int [n] ;
   set_lateral_Ttubule();
   // 18:15:28, Tue, 11-December-2018, By Haibo
 
@@ -1520,11 +1520,22 @@ void CSubcell::set_CRU_type() {
 }
 
 void CSubcell::assign_mito() {
-  
+    for (int k = 0; k < nz; ++k)
+      for (int i = 0; i < ny; ++i)
+      {
+        for (int j = 0; j < nx; ++j)
+        {
+          int id = j + i * nx + k * nx * ny;
+          // out_ci << tubule_flag[id] << "\t";
+
+          int mx = j / nxover_nxmito ;
+          int my = i / nyover_nymito ;
+          int mz = k / nzover_nzmito ;
+          int id_mito = mx + my * nx_mito + mz * nx_mito * ny_mito;
+          CRU_mito_assignment[id] = id_mito;
+        }
+      }
 }
-
-
-
 
 
 void CSubcell::output_Ttubule_map() {

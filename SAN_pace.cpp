@@ -116,9 +116,14 @@ int main(int argc, char *argv[]) {
 
 
 	sc.set_CRU_type();
+	sc.assign_mito(); 
 	sc.output_map(sc.CRU_type, "CRU_type.vtk");
 	sc.output_map(sc.tubule_flag, "tubule_flag.vtk");
-
+	sc.output_map(sc.CRU_mito_assignment, "mito_idx.vtk");
+	//Temporary loop to print mito indeces 
+	for (int i = 0; i < sc.n; ++i){
+		std::cout << sc.CRU_mito_assignment[i] << "\n" ;
+		}
 
 	// to simulate ion current blockade
 	// sc.ncx_scale = 0.4;

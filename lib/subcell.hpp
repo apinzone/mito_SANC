@@ -247,7 +247,7 @@ public:
 
 
   int *CRU_type;
-
+  int *CRU_mito_assignment;
   void pace(double v, double nai);
   void pace_new(double v, double nai);
   //set Nerst parameters
