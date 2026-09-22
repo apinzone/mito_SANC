@@ -112,19 +112,48 @@ int main(int argc, char *argv[]) {
 	sc.CLAMP_Cai = false;  
 	sc.init(0.1, 800, LTCC_alpha, LTCC_gamma,random_seed);
 
-	std::cout << sc.NUM_Ttubule << std::endl;
+	std::cout << sc.NUM_Ttubule << std::endl; 
 
-
+	//Initialize CRU properties 
 	sc.set_CRU_type();
 	sc.assign_mito(); 
-	sc.output_map(sc.CRU_type, "CRU_type.vtk");
-	sc.output_map(sc.tubule_flag, "tubule_flag.vtk");
-	sc.output_map(sc.CRU_mito_assignment, "mito_idx.vtk");
-	//Temporary loop to print mito indeces 
-	for (int i = 0; i < sc.n; ++i){
-		std::cout << sc.CRU_mito_assignment[i] << "\n" ;
-		}
+	sc.assign_producer_CRU() ;
 
+	sc.output_map(sc.CRU_type, "CRU_type.vtk", 0, 0, 0);
+	sc.output_map(sc.tubule_flag, "tubule_flag.vtk", 0, 0, 0);
+	sc.output_map(sc.CRU_mito_assignment, "mito_idx.vtk", 0, 0, 0);
+	sc.output_map(sc.CRU_producer_status, "prod_idx.vtk", sc.nx_mito, sc.ny_mito, sc.nz_mito);
+
+	// //Temporary loop to print mito indeces 
+	// for (int i = 0; i < sc.n; ++i){
+	// 	std::cout << sc.CRU_mito_assignment[i] << "\n" ;
+	// 	}
+
+	// print CRu type with producer mito
+	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
+	for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito) {
+		int producer = sc.CRU_producer_status[id_mito];
+		int type = sc.CRU_type[producer];
+		if (type == 0) count_type0++;
+		else if (type == 1) count_type1++;
+		else if (type == 2) count_type2++;
+	}
+
+	std::cout << "type 0 (interior): " << count_type0 << std::endl;
+	std::cout << "type 1 (near-boundary): " << count_type1 << std::endl;
+	std::cout << "type 2 (boundary): " << count_type2 << std::endl;
+	std::cout << "total: " << (count_type0 + count_type1 + count_type2) << std::endl;
+	
+	//Visual for CRUs attached to mito vs whole grid
+	int *producer_highlight = new int[sc.n];
+	for (int i = 0; i < sc.n; ++i) producer_highlight[i] = 0;
+
+	for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito) {
+	producer_highlight[sc.CRU_producer_status[id_mito]] = 1;
+	}
+
+	sc.output_map(producer_highlight, "producer_highlight.vtk", 0,0,0);  // default CRU-grid dims
+	delete [] producer_highlight;
 	// to simulate ion current blockade
 	// sc.ncx_scale = 0.4;
 	// sc.ICaT_scale = 0.4;

@@ -247,8 +247,10 @@ public:
   int *crupos;
 
 
-  int *CRU_type;
-  int *CRU_mito_assignment;
+  int *CRU_type; //peripheral vs central 
+  int *CRU_mito_assignment; //assign CRU place in mito grid 
+  int *CRU_producer_status ; //assign producer CRU designation 
+
   void pace(double v, double nai);
   void pace_new(double v, double nai);
   //set Nerst parameters
@@ -454,9 +456,10 @@ public:
   double calculate_dynamic_buffer_cytosol(int id, double Cai, double dt);   // unit of buffers: mM
 
 template<typename U>
-void output_map( U *map, const char outputfile[]);
+void output_map(U *map, const char outputfile[], int dimx, int dimy, int dimz);
 void set_CRU_type();
 void assign_mito() ; 
+void assign_producer_CRU(); 
 
 
 
@@ -497,38 +500,41 @@ void assign_mito() ;
 
 
 template<typename U>
-void CSubcell::output_map(U *map, const char outputfile[]) {
-
+void CSubcell::output_map(U *map, const char outputfile[], int dimx, int dimy, int dimz) {
   ofstream out_ci(outputfile);
 
   if (map == NULL) {
     std::cerr << "map==NULL in CSubcell::output_map()" << std::endl;
     std::exit(0);
   }
-  out_ci <<  "# vtk DataFile Version 3.0" << std::endl;
-  out_ci <<  "vtk output"  << std::endl;
-  out_ci <<  "ASCII"  << std::endl;
-  out_ci <<  "DATASET STRUCTURED_POINTS"  << std::endl;
-  out_ci <<  "DIMENSIONS " << nx << " " << ny << " " << nz   << std::endl;
-  out_ci <<  "SPACING 1 1 1"  << std::endl;
-  out_ci <<  "ORIGIN 0 0 0"  << std::endl;
-  out_ci <<  "POINT_DATA " <<  nx*ny*nz << std::endl;
-  out_ci <<  "SCALARS HumanAtrium float 1"  << std::endl;
-  out_ci <<  "LOOKUP_TABLE default"   << std::endl;
+  if (dimx == 0) dimx = nx ;
+  if (dimy == 0) dimy = ny ;
+  if (dimz == 0) dimz = nz ;
+    out_ci <<  "# vtk DataFile Version 3.0" << std::endl;
+    out_ci <<  "vtk output"  << std::endl;
+    out_ci <<  "ASCII"  << std::endl;
+    out_ci <<  "DATASET STRUCTURED_POINTS"  << std::endl;
+    out_ci <<  "DIMENSIONS " << dimx << " " << dimy << " " << dimz   << std::endl;
+    out_ci <<  "SPACING 1 1 1"  << std::endl;
+    out_ci <<  "ORIGIN 0 0 0"  << std::endl;
+    out_ci <<  "POINT_DATA " <<  dimx*dimy*dimz << std::endl;
+    out_ci <<  "SCALARS MitoTest float 1"  << std::endl;
+    out_ci <<  "LOOKUP_TABLE default"   << std::endl;
 
-  for (int k = 0; k < nz; ++k)
-    for (int i = 0; i < ny; ++i)
+
+  for (int k = 0; k < dimz; ++k)
+    for (int i = 0; i < dimy; ++i)
     {
-      for (int j = 0; j < nx; ++j)
+      for (int j = 0; j < dimx; ++j)
       {
-        int id = j + i * nx + k * nx * ny;
+        int id = j + i * dimx + k * dimx * dimy;
         out_ci << map[id] << "\t";
       }
       out_ci << std::endl;
-
     }
-  out_ci.close();
-}
+    out_ci.close();
+} 
+
 
 
 #endif

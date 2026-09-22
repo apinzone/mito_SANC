@@ -285,6 +285,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
 
   CRU_type = new int [n];
   CRU_mito_assignment = new int [n] ;
+  CRU_producer_status = new int [n_mito] ; 
+
   set_lateral_Ttubule();
   // 18:15:28, Tue, 11-December-2018, By Haibo
 
@@ -543,6 +545,9 @@ void CSubcell::delarray(void)
   delete [] ca_mito ; 
   delete [] ATP_cyto ;
   delete [] ADP_free ;
+  delete [] CRU_producer_status ;
+  delete [] CRU_mito_assignment ;
+  delete [] CRU_type ;
 
 #ifdef ___DETERMINISTIC
   delete [] c1;
@@ -1560,6 +1565,21 @@ void CSubcell::assign_mito() {
       }
 }
 
+void CSubcell::assign_producer_CRU() {
+    for (int k = 0; k < nz_mito; ++ k) 
+      for (int i = 0; i < ny_mito; ++ i) 
+      {
+        for (int j = 0; j < nx_mito; ++ j)
+        {
+        int mx = j ; 
+        int my = i ; 
+        int mz = k ; 
+        int id_mito = mx + my * nx_mito + mz * nx_mito * ny_mito ; 
+        int producer_id = mx * nxover_nxmito + my * nyover_nymito * nx + mz * nzover_nzmito * nx * ny ;
+        CRU_producer_status[id_mito] = producer_id ; 
+        }
+    }
+}
 
 void CSubcell::output_Ttubule_map() {
 
