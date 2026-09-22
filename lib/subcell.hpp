@@ -265,8 +265,8 @@ public:
   double compute_avg_cnsr(void);
   double compute_avg_cjsr(void);
 
-
-
+  double TAN = 7000.0 ; 
+  double ADP_buffer_rate = 0.025 ; 
   double ncx_scale = 1.0;
   double taup_scale = 1.0;
   double ICaL_scale = 1.0;

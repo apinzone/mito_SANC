@@ -1216,6 +1216,11 @@ void CSubcell::pace(double v, double nai)
 
   }
 
+  //Update ADP and ATp per timestep 
+  for(int id = 0; id < n; id ++){
+      ADP_free[id] = ADP_buffer_rate * (TAN - ATP_cyto[id]);
+  }
+
   irave = sumir / n;
   iupave = sumjup / nn;
 
