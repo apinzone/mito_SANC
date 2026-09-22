@@ -238,7 +238,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
 
   psi_mito = new double[n_mito] ;
   ca_mito  = new double[n_mito] ;
-
+  ATP_cyto = new double[n] ; 
+  ADP_free = new double [n] ;
   for (int id = 0; id < nn; ++id)
   {
     Tropc_vec[id]     = 8.773191e-3;  //  // unit of buffers: mM
@@ -253,9 +254,14 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     psi_mito[id] = 180 ; // -180 mV delta psi mito IC 
     ca_mito[id] = 0.05 ; //0.05 micromolar IC from Yaniv 2012 
   }
-  //cout << psi_mito[0] << "," << ca_mito[0] << "\n" ;
   //  cats=new double [nn];
 
+   for (int i = 0; i < n; ++i)
+  {
+    ATP_cyto[i] = 5000; //Song et al.
+    ADP_free[i] = 50; //Song et al. 
+  }
+  
 #ifdef ___DETERMINISTIC
   c1 = new double [n];
   c2 = new double [n];
@@ -342,6 +348,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   {
     ncx_array[i] = 0;
   }
+
+
 
   icabk_array = new double [nn];
   jpca_array = new double [nn];
@@ -533,6 +541,8 @@ void CSubcell::delarray(void)
   delete [] cnsr;
   delete [] psi_mito ;
   delete [] ca_mito ; 
+  delete [] ATP_cyto ;
+  delete [] ADP_free ;
 
 #ifdef ___DETERMINISTIC
   delete [] c1;
@@ -706,6 +716,19 @@ CSubcell& CSubcell::operator=(const CSubcell& sc)
     cscp2[id] = sc.cscp2[id];
     Itr[id] = sc.Itr[id];
   }
+
+   for (int id = 0; id < n; ++id)
+  {
+    ATP_cyto[id] = sc.ATP_cyto[id] ; 
+    ADP_free[id] = sc.ADP_free[id] ;
+  }
+
+ for (int id = 0; id < n_mito; ++id)
+  {
+    psi_mito[id] = sc.psi_mito[id] ; 
+    ca_mito[id] = sc.ca_mito[id] ;
+  }
+
 #pragma ivdep
 #pragma vector always
   for (int id = 0; id < n; id++)

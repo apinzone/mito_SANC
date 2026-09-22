@@ -213,6 +213,7 @@ public:
   double *ci, *cs, *cp, *cjsr, *cnsr, *cati;
   double *cscp1, *cscp2, *Itr;
   double *ca_mito, *psi_mito ; 
+  double *ATP_cyto, *ADP_free;
 
 #ifdef ___DETERMINISTIC
   double *c1, *c2, *i1ca, *i1ba, *i2ca, *i2ba, *fryr1, *fryr2, *fryr3;
