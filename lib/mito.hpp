@@ -39,8 +39,10 @@ static constexpr double kd_deltam = 150;
 static constexpr double kd_psn = 0.02 ; 
 static constexpr double kd_psp = 0.5 ; 
 static constexpr double DATP = 0.25 ; //diffusion coefficient
-static constexpr double dx = 1.84 ; //distance of diffusion
-static constexpr double tau_ATP = dx * dx / DATP ; //Time constant for ATP diffusion function
+static constexpr double l_L_atp = 1.84 ; //longitudinal (x) length constant, um (Song), delta_x 
+static constexpr double l_T_atp = 0.9 ; //transverse (y,z) length constant, um (Song), delta_y
+static constexpr double tau_ATP_L = (l_L_atp * l_L_atp) / DATP ; //Longitudinal (x) time constant for ATP diffusion
+static constexpr double tau_ATP_T = (l_T_atp * l_T_atp) / DATP ; //Transverse (y,z) time constant for ATP diffusion
 
 //Compute MCU Flux 
 inline std::pair<double, double>update_MCU(double ca_space, double mito_psi, double mito_ca){
