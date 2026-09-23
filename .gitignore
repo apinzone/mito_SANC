@@ -1,0 +1,4 @@
+# Simulation outputs
+*.txt
+*.bin
+*.vtk
