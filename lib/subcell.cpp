@@ -240,6 +240,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   ca_mito  = new double[n_mito] ;
   ATP_cyto = new double[n] ; 
   ADP_free = new double [n] ;
+  J_ATP_D = new double [n] ;
+  ATP_prod_rate = new double [n] ; 
   for (int id = 0; id < nn; ++id)
   {
     Tropc_vec[id]     = 8.773191e-3;  //  // unit of buffers: mM
@@ -545,6 +547,8 @@ void CSubcell::delarray(void)
   delete [] ca_mito ; 
   delete [] ATP_cyto ;
   delete [] ADP_free ;
+  delete [] J_ATP_D ;
+  delete [] ATP_prod_rate ;
   delete [] CRU_producer_status ;
   delete [] CRU_mito_assignment ;
   delete [] CRU_type ;
