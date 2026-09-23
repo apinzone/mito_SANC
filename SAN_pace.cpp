@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 	//Testing averages across prod crus
 	std::ofstream mito_summary("mito_summary.txt");
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\n";
-	
+
 	std::ofstream mito0_trace("mito0_trace.txt");
 	mito0_trace << "time\tcp0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\n";
 	// print CRu type with producer mito
@@ -343,6 +343,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+	sc.output_map(sc.ATP_cyto, "atp_cyto_final.vtk", 0, 0, 0);
 	mito_summary.close() ;
 	return 0;
 }

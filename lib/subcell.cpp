@@ -1263,7 +1263,6 @@ void CSubcell::pace(double v, double nai)
     ATP_prod_rate[prod_id] = dATPdt; //compute actual derivative of ATP production at prod CRUs only
     //ATP_cyto[prod_id] += dt * dATPdt ;
     //Test
-    sum_ATP += ATP_cyto[prod_id];
     sum_ca_mito += ca_mito[id_mito];
     sum_psi_mito += psi_mito[id_mito];
 
@@ -1275,8 +1274,11 @@ void CSubcell::pace(double v, double nai)
     ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id]);
   }
 
-  //Test / Sanity check
-  avg_ATP = sum_ATP / n_mito;
+  double sum_ATP_all = 0;
+  for (int id = 0; id < n; ++id){
+      sum_ATP_all += ATP_cyto[id];
+  }
+  avg_ATP = sum_ATP_all / n;
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
 
