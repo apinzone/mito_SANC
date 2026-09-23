@@ -1216,7 +1216,7 @@ void CSubcell::pace(double v, double nai)
 
   }
 
-  //Compute mito fluxes, calcium, and Vm
+  //Compute mito fluxes, calcium, and Vm as well as ATP
   for (int id_mito = 0; id_mito < n_mito; ++id_mito){
     //Extract cleft Ca and cai from 'producer' CRUs 
     int prod_id = CRU_producer_status[id_mito] ;
@@ -1224,23 +1224,24 @@ void CSubcell::pace(double v, double nai)
     double cai_prod = ci[prod_id] ;
     double mito_psi = psi_mito[id_mito] ;
     double mito_ca = ca_mito[id_mito] ; 
+    //Extract ATP and ADP
+    double ATP = ATP_cyto[prod_id] ;
+    double ADP = ADP_buffer_rate * (TAN - ATP) ;
     //Calculate fluxes for MCU and mito NCX
     auto [iMCU, J_uni] = update_MCU(ca_cleft_prod, mito_psi, mito_ca) ;
     double jNCX_m = update_NCX_mito(cai_prod, mito_psi, mito_ca) ;
-    
     //Compute Mito Psi 
     //Scaling for Uni and NCx 
     double I_uni = z_Ca * (1/ C_mito) * J_uni ;
     double I_NCX_m = (1/C_mito) * jNCX_m ;
     double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
-    //Integrate Mito Ca and Psi mito 
-    ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ; 
-    psi_mito[id_mito] += dt * psi_mito_dot ; 
-  }
-
-  //Update ADP and ATp per timestep //ATP STILL NEEDED
-  for(int id = 0; id < n; id ++){
-      ADP_free[id] = ADP_buffer_rate * (TAN - ATP_cyto[id]);
+    //Compute ADP and ATP
+    auto [VATP_consum, V_ATPase] = update_ATP_rates(mito_psi, ATP, ADP);
+    double dATPdt = -VATP_consum + V_ATPase ;
+    //Integrate Mito Ca, Psi mito, and ATP
+    ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ; //ASSUMING NO DIFFUSION
+    psi_mito[id_mito] += dt * psi_mito_dot ;
+    ATP_cyto[prod_id] += dt * dATPdt ;
   }
 
   irave = sumir / n;

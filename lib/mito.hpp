@@ -57,7 +57,7 @@ double jNCX_m = vNCX_max * (numerator/denominator) ;
 return jNCX_m ;
 };
 
-inline std::pair<double, double> compute_ATP_rates(double mito_psi, double ATP, double ADP){
+inline std::pair<double, double> update_ATP_rates(double mito_psi, double ATP, double ADP){
 double psp = ATP/ADP; 
 double fdmito = mito_psi / (mito_psi + kd_deltam); 
 double fADP = 1 / (1 + kd_psn * psp);
