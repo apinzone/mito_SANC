@@ -175,7 +175,10 @@ public:
   int nzover_nzmito = 2; 
   int n_mito; 
 
-
+  double avg_ATP;
+  double avg_ca_mito;
+  double avg_psi_mito;
+  
   static const double vjsr;
   double vnsr;
 

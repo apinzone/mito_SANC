@@ -1215,7 +1215,7 @@ void CSubcell::pace(double v, double nai)
     sumica_ci += ICa_ci;
 
   }
-
+  double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0; //TEST
   //Compute mito fluxes, calcium, and Vm as well as ATP
   for (int id_mito = 0; id_mito < n_mito; ++id_mito){
     //Extract cleft Ca and cai from 'producer' CRUs 
@@ -1242,8 +1242,15 @@ void CSubcell::pace(double v, double nai)
     ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ; //ASSUMING NO DIFFUSION
     psi_mito[id_mito] += dt * psi_mito_dot ;
     ATP_cyto[prod_id] += dt * dATPdt ;
+    //Test
+    sum_ATP += ATP_cyto[prod_id];
+    sum_ca_mito += ca_mito[id_mito];
+    sum_psi_mito += psi_mito[id_mito];
   }
-
+  double avg_ATP = sum_ATP / n_mito;
+  double avg_ca_mito = sum_ca_mito / n_mito;
+  double avg_psi_mito = sum_psi_mito / n_mito;
+  
   irave = sumir / n;
   iupave = sumjup / nn;
 

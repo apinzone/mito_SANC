@@ -38,7 +38,8 @@ int main(int argc, char *argv[]) {
 
 	SAN_elecphysio Cell;
 
-	int Tn = 31000.0 / dt;
+	//int Tn = 31000.0 / dt;
+	int Tn = 2000.0/dt ;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -128,6 +129,9 @@ int main(int argc, char *argv[]) {
 	// for (int i = 0; i < sc.n; ++i){
 	// 	std::cout << sc.CRU_mito_assignment[i] << "\n" ;
 	// 	}
+	//Testing averages across prod crus
+	std::ofstream mito_summary("mito_summary.txt");
+	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\n";
 
 	// print CRu type with producer mito
 	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
@@ -231,7 +235,9 @@ int main(int argc, char *argv[]) {
 		{
 			cout << t << "\t" << sc.ci[0]  << "\t" << sc.cp[0] << endl;
 			// os << t << "\t" << v << "\t" << sc.ica_stan << "\t" << sc.num_open_ICaL << "\t" << Cell.ical12 / 0.025 << "\t" << Cell.ical13 / 0.025 << "\t" ;
-
+			double avg_ADP = ADP_buffer_rate * (TAN - sc.avg_ATP);
+			mito_summary << t << "\t" << sc.avg_ATP << "\t" << avg_ADP
+						<< "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito << "\n";
 			os << t << " " << Cell.y[37 - 1] << " " << sc.compute_avg_ci()  << " " << sc.compute_avg_cnsr()
 			   << " " << Cell.ih / 0.025   //5
 			   << " " << Cell.ina_ttxs / 0.025
@@ -286,7 +292,7 @@ int main(int argc, char *argv[]) {
 			       os << sc.cnsr[id] << "\t";
 			     }
 			*/
-
+			mito_summary.close();
 			if (t > 1000 and tn % 100 == 0) {
 
 				char filename[1000];

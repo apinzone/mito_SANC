@@ -1,0 +1,2 @@
+time	avg_ATP	avg_ADP	avg_ca_mito	avg_psi_mito
+0	0	175	0	0
