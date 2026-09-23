@@ -38,8 +38,7 @@ int main(int argc, char *argv[]) {
 
 	SAN_elecphysio Cell;
 
-	//int Tn = 31000.0 / dt;
-	int Tn = 2000.0/dt ;
+	int Tn = 31000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -132,7 +131,9 @@ int main(int argc, char *argv[]) {
 	//Testing averages across prod crus
 	std::ofstream mito_summary("mito_summary.txt");
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\n";
-
+	
+	std::ofstream mito0_trace("mito0_trace.txt");
+	mito0_trace << "time\tcp0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\n";
 	// print CRu type with producer mito
 	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
 	for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito) {
@@ -238,6 +239,10 @@ int main(int argc, char *argv[]) {
 			double avg_ADP = ADP_buffer_rate * (TAN - sc.avg_ATP);
 			mito_summary << t << "\t" << sc.avg_ATP << "\t" << avg_ADP
 						<< "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito << "\n";
+			mito_summary.flush();
+			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_Juni0 << "\t"
+					<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0 << "\n";
+			mito0_trace.flush();
 			os << t << " " << Cell.y[37 - 1] << " " << sc.compute_avg_ci()  << " " << sc.compute_avg_cnsr()
 			   << " " << Cell.ih / 0.025   //5
 			   << " " << Cell.ina_ttxs / 0.025
@@ -292,7 +297,6 @@ int main(int argc, char *argv[]) {
 			       os << sc.cnsr[id] << "\t";
 			     }
 			*/
-			mito_summary.close();
 			if (t > 1000 and tn % 100 == 0) {
 
 				char filename[1000];
@@ -339,5 +343,6 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+	mito_summary.close() ;
 	return 0;
 }

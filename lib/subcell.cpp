@@ -1216,6 +1216,12 @@ void CSubcell::pace(double v, double nai)
 
   }
   double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0; //TEST
+
+  //initialize ATP production rate array with zeros 
+  for (int id = 0; id < n; ++ id) {
+    ATP_prod_rate[id] = 0;
+  }
+
   //Compute mito fluxes, calcium, and Vm as well as ATP
   for (int id_mito = 0; id_mito < n_mito; ++id_mito){
     //Extract cleft Ca and cai from 'producer' CRUs 
@@ -1230,6 +1236,15 @@ void CSubcell::pace(double v, double nai)
     //Calculate fluxes for MCU and mito NCX
     auto [iMCU, J_uni] = update_MCU(ca_cleft_prod, mito_psi, mito_ca) ;
     double jNCX_m = update_NCX_mito(cai_prod, mito_psi, mito_ca) ;
+
+    //Extract on mito for test
+    if (id_mito == 0) {
+      trace_ca_mito0 = ca_mito[0];      
+      trace_psi_mito0 = psi_mito[0];
+      trace_cp0 = ca_cleft_prod;         
+      trace_Juni0 = J_uni;
+      trace_jncx0 = jNCX_m;
+    }
     //Compute Mito Psi 
     //Scaling for Uni and NCx 
     double I_uni = z_Ca * (1/ C_mito) * J_uni ;
@@ -1241,16 +1256,26 @@ void CSubcell::pace(double v, double nai)
     //Integrate Mito Ca, Psi mito, and ATP
     ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ; //ASSUMING NO DIFFUSION
     psi_mito[id_mito] += dt * psi_mito_dot ;
-    ATP_cyto[prod_id] += dt * dATPdt ;
+    ATP_prod_rate[prod_id] = dATPdt; //compute actual derivative of ATP production at prod CRUs only
+    //ATP_cyto[prod_id] += dt * dATPdt ;
     //Test
     sum_ATP += ATP_cyto[prod_id];
     sum_ca_mito += ca_mito[id_mito];
     sum_psi_mito += psi_mito[id_mito];
+
   }
-  double avg_ATP = sum_ATP / n_mito;
-  double avg_ca_mito = sum_ca_mito / n_mito;
-  double avg_psi_mito = sum_psi_mito / n_mito;
-  
+
+  compute_J_ATP_D() ; //Compute Diffusion term for ATP
+  //Finishg integrating ATP 
+  for (int id = 0; id < n; ++ id) {
+    ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id]);
+  }
+
+  //Test / Sanity check
+  avg_ATP = sum_ATP / n_mito;
+  avg_ca_mito = sum_ca_mito / n_mito;
+  avg_psi_mito = sum_psi_mito / n_mito;
+
   irave = sumir / n;
   iupave = sumjup / nn;
 

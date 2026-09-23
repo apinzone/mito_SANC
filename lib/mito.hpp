@@ -1,5 +1,4 @@
 #pragma once 
-
 #include <array>
 #include <vector> 
 #include <cmath>
@@ -41,8 +40,9 @@ static constexpr double kd_psn = 0.02 ;
 static constexpr double kd_psp = 0.5 ; 
 static constexpr double DATP = 0.25 ; //diffusion coefficient
 static constexpr double dx = 1.84 ; //distance of diffusion
+static constexpr double tau_ATP = dx * dx / DATP ; //Time constant for ATP diffusion function
 
-//Member functions 
+//Compute MCU Flux 
 inline std::pair<double, double>update_MCU(double ca_space, double mito_psi, double mito_ca){
 double ECa_m = RTzF * log(ca_space/mito_ca) ;
 double iMCU = (gMCU_max / (1 + (Km_uni/ca_space))) *  (mito_psi - ECa_m);
@@ -50,6 +50,7 @@ double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) ;
 return {iMCU, J_uni} ;
 }
 
+//Compute mito NCX Flux 
 inline double update_NCX_mito(double cai, double mito_psi, double mito_ca){
 double numerator = (exp(bfRT * (mito_psi - mito_v0)) * (mito_ca / cai)) ;
 double denominator = pow(1 + kNa_mNCX/nai_mito,n_mNCX) * (1 + (kCa_mNCX / mito_ca)) ;
@@ -57,6 +58,7 @@ double jNCX_m = vNCX_max * (numerator/denominator) ;
 return jNCX_m ;
 };
 
+//Compute ATP Production and Consumption 
 inline std::pair<double, double> update_ATP_rates(double mito_psi, double ATP, double ADP){
 double psp = ATP/ADP; 
 double fdmito = mito_psi / (mito_psi + kd_deltam); 

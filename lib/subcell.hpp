@@ -72,6 +72,8 @@ public:
 
   void computeIci(void);
   void computeIcnsr(void);
+  void compute_J_ATP_D(void); //ATP diffusion function 
+
   double *Ici, *Icnsr;
 #ifdef ___NO_CS_BUFFER
   double *csmn;
@@ -174,11 +176,13 @@ public:
   int nyover_nymito = 2;
   int nzover_nzmito = 2; 
   int n_mito; 
-
+  
+  //for test
   double avg_ATP;
   double avg_ca_mito;
   double avg_psi_mito;
-  
+  double trace_ca_mito0, trace_psi_mito0, trace_cp0, trace_Juni0, trace_jncx0;
+
   static const double vjsr;
   double vnsr;
 
@@ -215,8 +219,9 @@ public:
   //  double *ci,*cs,*cp,*cjsr,*cnsr,*cati,*cats;
   double *ci, *cs, *cp, *cjsr, *cnsr, *cati;
   double *cscp1, *cscp2, *Itr;
+  //SV arrays for mito and ATP 
   double *ca_mito, *psi_mito ; 
-  double *ATP_cyto, *ADP_free;
+  double *ATP_cyto, *ADP_free, *J_ATP_D, *ATP_prod_rate;
 
 #ifdef ___DETERMINISTIC
   double *c1, *c2, *i1ca, *i1ba, *i2ca, *i2ba, *fryr1, *fryr2, *fryr3;
