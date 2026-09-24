@@ -1282,7 +1282,7 @@ void CSubcell::pace(double v, double nai)
     if (id == CRU_producer_status[0]) {
       trace_consum0 = VATP_consum;
       trace_diff0   = J_ATP_D[id];
-  }
+    }
   }
 
   double sum_ATP_all = 0;
