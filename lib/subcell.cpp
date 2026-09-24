@@ -1219,7 +1219,7 @@ void CSubcell::pace(double v, double nai)
     sumica_ci += ICa_ci;
 
   }
-  double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0, sum_cp_prod; //TEST
+  double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0, sum_cp_prod = 0; //TEST
 
   //initialize ATP production rate array with zeros 
   for (int id = 0; id < n; ++ id) {
@@ -1240,7 +1240,7 @@ void CSubcell::pace(double v, double nai)
     //Calculate fluxes for MCU and mito NCX
     auto [iMCU, J_uni] = update_MCU(ca_cleft_prod, mito_psi, mito_ca) ;
     double jNCX_m = update_NCX_mito(cai_prod, mito_psi, mito_ca) ;
-
+  
     //Extract one mito for test
     if (id_mito == 0) {
       trace_ca_mito0 = ca_mito[0];      
@@ -1259,6 +1259,9 @@ void CSubcell::pace(double v, double nai)
     double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
     //Compute ATP Production (Producer CRUs only)
     double VATPase = update_ATP_production(mito_psi, ATP, ADP);
+    if (id_mito == 0) {
+        trace_prod0 = VATPase;
+    }
     //Integrate Mito Ca, Psi mito, and ATP
     ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ; //ASSUMING NO DIFFUSION
     psi_mito[id_mito] += dt * psi_mito_dot ;
@@ -1276,6 +1279,10 @@ void CSubcell::pace(double v, double nai)
     double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ;
     double VATP_consum = update_ATP_consumption(ATP_cyto[id], ADP_local) ;
     ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
+    if (id == CRU_producer_status[0]) {
+      trace_consum0 = VATP_consum;
+      trace_diff0   = J_ATP_D[id];
+  }
   }
 
   double sum_ATP_all = 0;

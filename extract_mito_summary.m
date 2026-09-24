@@ -1,7 +1,7 @@
 %% plot_mito_summary.m
 % Quick sanity-check plot of mito_summary.txt
 % Columns: time  avg_ATP  avg_ADP  avg_ca_mito  avg_psi_mito  avg_cai  avg_cp_prod
-clear all, close all ; 
+cleahe r all, close all ; 
 data = readtable('mito_summary.txt', 'FileType', 'text', 'Delimiter', '\t');
 
 t         = data.time;
