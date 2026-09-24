@@ -343,7 +343,8 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-	sc.output_map(sc.ATP_cyto, "atp_cyto_final.vtk", 0, 0, 0);
+	sc.output_map(sc.ATP_cyto, "atp_cyto_final.vtk", 0, 0, 0); 
+	sc.output_map(sc.ATP_prod_rate, "atp_prod_rate_final.vtk", 0, 0, 0);
 	mito_summary.close() ;
 	return 0;
 }

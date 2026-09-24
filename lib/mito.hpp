@@ -38,11 +38,9 @@ static constexpr double k_ATPase = 0.16 ;
 static constexpr double kd_deltam = 150;
 static constexpr double kd_psn = 0.02 ; 
 static constexpr double kd_psp = 0.5 ; 
-static constexpr double DATP = 0.25 ; //diffusion coefficient
-static constexpr double l_L_atp = 1.84 ; //longitudinal (x) length constant, um (Song), delta_x 
+static constexpr double DATP = 0.25 ; //diffusion coefficient, um^2/ms (Hubley et al 1995)
+static constexpr double l_L_atp = 1.84 ; //longitudinal (x) length constant, um (Song), delta_x
 static constexpr double l_T_atp = 0.9 ; //transverse (y,z) length constant, um (Song), delta_y
-static constexpr double tau_ATP_L = (l_L_atp * l_L_atp) / DATP ; //Longitudinal (x) time constant for ATP diffusion
-static constexpr double tau_ATP_T = (l_T_atp * l_T_atp) / DATP ; //Transverse (y,z) time constant for ATP diffusion
 
 //Compute MCU Flux 
 inline std::pair<double, double>update_MCU(double ca_space, double mito_psi, double mito_ca){
@@ -61,13 +59,18 @@ return jNCX_m ;
 };
 
 //Compute ATP Production and Consumption 
-inline std::pair<double, double> update_ATP_rates(double mito_psi, double ATP, double ADP){
+inline double update_ATP_consumption(double ATP, double ADP){
+double psp = ATP/ADP; 
+double VATP_consum = k_ATPconsum * (psp / (psp + k_dpspconsum));
+return {VATP_consum};
+}
+
+inline double update_ATP_production(double mito_psi, double ATP, double ADP){
 double psp = ATP/ADP; 
 double fdmito = mito_psi / (mito_psi + kd_deltam); 
 double fADP = 1 / (1 + kd_psn * psp);
 double fATP = psp / (psp + kd_psp); 
 double gdmito = 0.3 * (1 - fdmito);
-double VATP_consum = k_ATPconsum * (psp / (psp + k_dpspconsum));
 double VATPase = k_ATPase * (fdmito*fADP - gdmito * fATP) ;
-return {VATP_consum, VATPase};
+return {VATPase};
 }
