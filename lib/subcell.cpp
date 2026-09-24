@@ -1219,7 +1219,7 @@ void CSubcell::pace(double v, double nai)
     sumica_ci += ICa_ci;
 
   }
-  double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0; //TEST
+  double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0, sum_cp_prod; //TEST
 
   //initialize ATP production rate array with zeros 
   for (int id = 0; id < n; ++ id) {
@@ -1248,6 +1248,9 @@ void CSubcell::pace(double v, double nai)
       trace_cp0 = ca_cleft_prod;         
       trace_Juni0 = J_uni;
       trace_jncx0 = jNCX_m;
+      trace_cai0 = cai_prod;
+      trace_atp0 = ATP;
+      trace_adp0 = ADP;
     }
     //Compute Mito Psi 
     //Scaling for Uni and NCx 
@@ -1264,7 +1267,7 @@ void CSubcell::pace(double v, double nai)
     //Test
     sum_ca_mito += ca_mito[id_mito];
     sum_psi_mito += psi_mito[id_mito];
-
+    sum_cp_prod += ca_cleft_prod;
   }
 
   compute_J_ATP_D() ; //Compute Diffusion term for ATP
@@ -1282,7 +1285,7 @@ void CSubcell::pace(double v, double nai)
   avg_ATP = sum_ATP_all / n;
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
-
+  avg_cp_prod = sum_cp_prod / n_mito;
   irave = sumir / n;
   iupave = sumjup / nn;
 

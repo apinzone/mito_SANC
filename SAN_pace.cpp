@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
 	SAN_elecphysio Cell;
 
-	int Tn = 31000.0 / dt;
+	int Tn = 100000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -130,11 +130,14 @@ int main(int argc, char *argv[]) {
 	// 	}
 	//Testing averages across prod crus
 	std::ofstream mito_summary("mito_summary.txt");
-	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\n";
-
 	std::ofstream mito0_trace("mito0_trace.txt");
+	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\n";
+	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\n";
+	
 	std::ofstream atp_linescan("atp_linescan.txt");
-	mito0_trace << "time\tcp0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\n";
+	std::ofstream atp_full("atp_full_grid.txt");
+
+	
 	// print CRu type with producer mito
 	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
 	for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito) {
@@ -238,12 +241,22 @@ int main(int argc, char *argv[]) {
 			cout << t << "\t" << sc.ci[0]  << "\t" << sc.cp[0] << endl;
 			// os << t << "\t" << v << "\t" << sc.ica_stan << "\t" << sc.num_open_ICaL << "\t" << Cell.ical12 / 0.025 << "\t" << Cell.ical13 / 0.025 << "\t" ;
 			double avg_ADP = ADP_buffer_rate * (TAN - sc.avg_ATP);
+
 			mito_summary << t << "\t" << sc.avg_ATP << "\t" << avg_ADP
-						<< "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito << "\n";
+              << "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito
+              << "\t" << sc.compute_avg_ci() << "\t" << sc.avg_cp_prod << "\n";
 			mito_summary.flush();
-			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_Juni0 << "\t"
-					<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0 << "\n";
+			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_cai0 << "\t" << sc.trace_Juni0 << "\t"
+						<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0
+						<< "\t" << sc.trace_atp0 << "\t" << sc.trace_adp0 << "\n";
 			mito0_trace.flush();
+			for (int id = 0; id < sc.n; ++id) {
+				atp_full << sc.ATP_cyto[id];
+				if (id < sc.n - 1) atp_full << "\t";
+			}
+			atp_full << "\n";
+			atp_full.flush();
+
 			int j_mid = sc.ny / 2;
 			int k_mid = sc.nz / 2;
 			int i_fixed = sc.nx / 2;   // x index, arbitrary (all x are producer-level)
@@ -357,6 +370,7 @@ int main(int argc, char *argv[]) {
 	sc.output_map(sc.ATP_cyto, "atp_cyto_final.vtk", 0, 0, 0); 
 	sc.output_map(sc.ATP_prod_rate, "atp_prod_rate_final.vtk", 0, 0, 0);
 	mito_summary.close() ;
-	atp_linescan.close();
+	atp_linescan.close() ;
+	atp_full.close() ; 
 	return 0;
 }

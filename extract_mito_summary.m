@@ -1,79 +1,106 @@
 %% plot_mito_summary.m
 % Quick sanity-check plot of mito_summary.txt
-% Columns: time  avg_ATP  avg_ADP  avg_ca_mito  avg_psi_mito
-
+% Columns: time  avg_ATP  avg_ADP  avg_ca_mito  avg_psi_mito  avg_cai  avg_cp_prod
+clear all, close all ; 
 data = readtable('mito_summary.txt', 'FileType', 'text', 'Delimiter', '\t');
 
-t        = data.time;
-atp      = data.avg_ATP;
-adp      = data.avg_ADP;
-ca_mito  = data.avg_ca_mito;
-psi_mito = data.avg_psi_mito;
+t         = data.time;
+atp       = data.avg_ATP;
+adp       = data.avg_ADP;
+ca_mito   = data.avg_ca_mito;
+psi_mito  = data.avg_psi_mito;
+avg_cai   = data.avg_cai;       % whole-cell average cytosolic Ca
+avg_cp    = data.avg_cp_prod;   % cleft Ca, averaged over producer CRUs only (mito Ca input)
 
-figure('Name', 'Mito Sanity Check', 'Position', [100 100 900 700]);
+figure('Name', 'Whole-Cell Averages', 'Position', [100 100 900 950]);
 
-subplot(4,1,1);
+subplot(6,1,1);
 plot(t, atp, 'LineWidth', 1.5);
 ylabel('avg ATP (\muM)');
-title('Mito Summary Averages Over Time (whole grid for ATP/ADP, producer CRUs for Ca/\Psi)');
-grid on;
+title('Whole-Cell Averages (Producer CRUs only for \Psi_{mito} and [Ca^{2+}]_{mito}');
 
-subplot(4,1,2);
+
+subplot(6,1,2);
 plot(t, adp, 'LineWidth', 1.5, 'Color', [0.85 0.33 0.10]);
 ylabel('avg ADP (\muM)');
-grid on;
 
-subplot(4,1,3);
+
+subplot(6,1,3);
+plot(t, avg_cai, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
+ylabel('avg Ca_i (\muM)');
+
+
+subplot(6,1,4);
+plot(t, avg_cp, 'LineWidth', 1.5, 'Color', [0.93 0.69 0.13]);
+ylabel('avg Ca_{cleft,prod} (\muM)');
+
+
+subplot(6,1,5);
 plot(t, ca_mito, 'LineWidth', 1.5, 'Color', [0.47 0.67 0.19]);
 ylabel('avg Ca_{mito} (\muM)');
-grid on;
 
-subplot(4,1,4);
+
+subplot(6,1,6);
 plot(t, psi_mito, 'LineWidth', 1.5, 'Color', [0.49 0.18 0.56]);
 ylabel('avg \Psi_{mito} (mV)');
 xlabel('Time (ms)');
-grid on;
+
 
 %% Single-mito trace (mito0_trace.txt)
-% Columns: time  cp0  J_uni0  jNCX_m0  ca_mito0  psi_mito0
+% Columns: time  cp0  cai0  J_uni0  jNCX_m0  ca_mito0  psi_mito0  atp0  adp0
 
 data0 = readtable('mito0_trace.txt', 'FileType', 'text', 'Delimiter', '\t');
 
 t0        = data0.time;
 cp0       = data0.cp0;
+cai0      = data0.cai0;
 J_uni0    = data0.J_uni0;
 jNCX_m0   = data0.jNCX_m0;
 ca_mito0  = data0.ca_mito0;
 psi_mito0 = data0.psi_mito0;
+atp0      = data0.atp0;
+adp0      = data0.adp0;
 
-figure('Name', 'Mito 0 Trace', 'Position', [1050 100 900 850]);
+figure('Name', 'Mito 0 Trace', 'Position', [1050 100 900 950]);
 
-subplot(5,1,1);
+subplot(6,1,1);
 plot(t0, cp0, 'LineWidth', 1.5);
 ylabel('cp_0 (\muM)');
-title('Mito 0 — Driving Ca and Fluxes Over Time');
-grid on;
+title('Mito 0 — Driving Ca, Fluxes, and ATP/ADP Over Time');
 
-subplot(5,1,2);
+subplot(6,1,2);
+plot(t0, cai0, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
+ylabel('cai_0 (\muM)');
+
+
+subplot(6,1,3);
 plot(t0, J_uni0, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
-ylabel('J_{uni,0}');
-grid on;
-
-subplot(5,1,3);
+hold on;
 plot(t0, jNCX_m0, 'LineWidth', 1.5, 'Color', [0.85 0.33 0.10]);
-ylabel('J_{NCX,0}');
-grid on;
+hold off;
+ylabel('J_{uni,0} / J_{NCX,0}');
+legend({'J_{uni,0}', 'J_{NCX,0}'}, 'Location', 'best');
 
-subplot(5,1,4);
+
+subplot(6,1,4);
 plot(t0, ca_mito0, 'LineWidth', 1.5, 'Color', [0.47 0.67 0.19]);
 ylabel('Ca_{mito,0} (\muM)');
-grid on;
 
-subplot(5,1,5);
+
+subplot(6,1,5);
 plot(t0, psi_mito0, 'LineWidth', 1.5, 'Color', [0.49 0.18 0.56]);
 ylabel('\Psi_{mito,0} (mV)');
+
+
+subplot(6,1,6);
+yyaxis left;
+plot(t0, atp0, 'LineWidth', 1.5);
+ylabel('ATP_0 (\muM)');
+yyaxis right;
+plot(t0, adp0, 'LineWidth', 1.5);
+ylabel('ADP_0 (\muM)');
 xlabel('Time (ms)');
-grid on;
+
 
 %% ATP linescan / kymograph (atp_linescan.txt)
 % One row per output snapshot (every 100 steps), one column per CRU
@@ -81,12 +108,28 @@ grid on;
 % Tab-delimited, no header.
 
 linescan = readmatrix('atp_linescan.txt', 'FileType', 'text', 'Delimiter', '\t');
+img = linescan';   % rows = CRU position, columns = snapshot #
+
+% Upsample onto a finer grid so the color transitions look continuous
+% (matplotlib's imshow(..., interpolation='gaussian') equivalent) rather
+% than blocky, without needing the Image Processing Toolbox.
+upsample_factor = 8;
+[nRows, nCols]   = size(img);
+[Xo, Yo]         = meshgrid(1:nCols, 1:nRows);
+[Xf, Yf]         = meshgrid(linspace(1, nCols, nCols*upsample_factor), ...
+                             linspace(1, nRows, nRows*upsample_factor));
+img_smooth = interp2(Xo, Yo, img, Xf, Yf, 'spline');
 
 figure('Name', 'ATP Linescan', 'Position', [100 850 900 400]);
 
-imagesc(linescan');
-set(gca, 'YDir', 'normal');
-colorbar;
+imagesc(img_smooth);   % default YDir ('reverse') matches imshow's default origin='upper'
+colormap(jet);
+c = colorbar;
+c.Label.String = 'ATP_{cyto} (\muM)';
+axis tight;
+set(gca, 'XTick', linspace(1, nCols*upsample_factor, min(nCols,8)), ...
+         'XTickLabel', round(linspace(1, nCols, min(nCols,8))));
+set(gca, 'YTick', []);   % no CRU-index ticks, just a physical-scale label
+ylabel(sprintf('%.0f \\mum', nRows * 1.84)); % nx * l_L_atp, physical extent along x
 xlabel('Snapshot # (every 100 steps)');
-ylabel('CRU position along x');
-title('ATP_{cyto} Linescan (kymograph), y = ny/2, z = nz/2');
+title('ATP_{cyto} Linescan, y = ny/2, z = nz/2');
