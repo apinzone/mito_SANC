@@ -38,7 +38,7 @@ static constexpr double k_ATPase = 0.16 ;
 static constexpr double kd_deltam = 150;
 static constexpr double kd_psn = 0.02 ; 
 static constexpr double kd_psp = 0.5 ; 
-static constexpr double DATP = 0.25 ; //diffusion coefficient, um^2/ms (Hubley et al 1995)
+static constexpr double DATP = 0.01; //diffusion coefficient, um^2/ms (Hubley et al 1995)
 static constexpr double l_L_atp = 1.84 ; //longitudinal (x) length constant, um (Song), delta_x
 static constexpr double l_T_atp = 0.9 ; //transverse (y,z) length constant, um (Song), delta_y
 
@@ -62,7 +62,7 @@ return jNCX_m ;
 inline double update_ATP_consumption(double ATP, double ADP){
 double psp = ATP/ADP; 
 double VATP_consum = k_ATPconsum * (psp / (psp + k_dpspconsum));
-return {VATP_consum};
+return VATP_consum;
 }
 
 inline double update_ATP_production(double mito_psi, double ATP, double ADP){
@@ -72,5 +72,5 @@ double fADP = 1 / (1 + kd_psn * psp);
 double fATP = psp / (psp + kd_psp); 
 double gdmito = 0.3 * (1 - fdmito);
 double VATPase = k_ATPase * (fdmito*fADP - gdmito * fATP) ;
-return {VATPase};
+return VATPase;
 }

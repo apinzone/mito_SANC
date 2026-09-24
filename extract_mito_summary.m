@@ -15,7 +15,7 @@ figure('Name', 'Mito Sanity Check', 'Position', [100 100 900 700]);
 subplot(4,1,1);
 plot(t, atp, 'LineWidth', 1.5);
 ylabel('avg ATP (\muM)');
-title('Mito Summary Averages Over Time (producer CRUs)');
+title('Mito Summary Averages Over Time (whole grid for ATP/ADP, producer CRUs for Ca/\Psi)');
 grid on;
 
 subplot(4,1,2);
@@ -74,3 +74,19 @@ plot(t0, psi_mito0, 'LineWidth', 1.5, 'Color', [0.49 0.18 0.56]);
 ylabel('\Psi_{mito,0} (mV)');
 xlabel('Time (ms)');
 grid on;
+
+%% ATP linescan / kymograph (atp_linescan.txt)
+% One row per output snapshot (every 100 steps), one column per CRU
+% along x at fixed y = ny/2, z = nz/2 (mirrors Song's h_linescanBuffer).
+% Tab-delimited, no header.
+
+linescan = readmatrix('atp_linescan.txt', 'FileType', 'text', 'Delimiter', '\t');
+
+figure('Name', 'ATP Linescan', 'Position', [100 850 900 400]);
+
+imagesc(linescan');
+set(gca, 'YDir', 'normal');
+colorbar;
+xlabel('Snapshot # (every 100 steps)');
+ylabel('CRU position along x');
+title('ATP_{cyto} Linescan (kymograph), y = ny/2, z = nz/2');

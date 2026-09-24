@@ -133,6 +133,7 @@ int main(int argc, char *argv[]) {
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\n";
 
 	std::ofstream mito0_trace("mito0_trace.txt");
+	std::ofstream atp_linescan("atp_linescan.txt");
 	mito0_trace << "time\tcp0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\n";
 	// print CRu type with producer mito
 	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
@@ -243,6 +244,16 @@ int main(int argc, char *argv[]) {
 			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_Juni0 << "\t"
 					<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0 << "\n";
 			mito0_trace.flush();
+			int j_mid = sc.ny / 2;
+			int k_mid = sc.nz / 2;
+			int i_fixed = sc.nx / 2;   // x index, arbitrary (all x are producer-level)
+			int k_fixed = sc.nz / 2;   // z index — must be even (producer z-plane)
+			for (int j = 0; j < sc.ny; ++j) {
+				atp_linescan << sc.ATP_cyto[i_fixed + j*sc.nx + k_fixed*(sc.nx*sc.ny)];
+				if (j < sc.ny - 1) atp_linescan << "\t";
+			}
+			atp_linescan << "\n";
+			atp_linescan.flush();
 			os << t << " " << Cell.y[37 - 1] << " " << sc.compute_avg_ci()  << " " << sc.compute_avg_cnsr()
 			   << " " << Cell.ih / 0.025   //5
 			   << " " << Cell.ina_ttxs / 0.025
@@ -346,5 +357,6 @@ int main(int argc, char *argv[]) {
 	sc.output_map(sc.ATP_cyto, "atp_cyto_final.vtk", 0, 0, 0); 
 	sc.output_map(sc.ATP_prod_rate, "atp_prod_rate_final.vtk", 0, 0, 0);
 	mito_summary.close() ;
+	atp_linescan.close();
 	return 0;
 }
