@@ -89,6 +89,7 @@ public:
 
   double dt;
   double vup, kup, KNSR;
+  double kmupATP, kiup, kiupprime; //ATP-dependent SERCA pars
   double vnaca;
   double Jmax;
   double taup;
@@ -266,6 +267,7 @@ public:
   void pace_new(double v, double nai);
   //set Nerst parameters
   double iupave, icaave, incxave, irave, ileakave, icabkave, islcapave;
+  double ADP_local ; //local ADP for i_up
   double ica_stan, incx_stan; //  *) xw: converted I [pA/pF] from sumica and sumncx [uM/ms]
   double icabk_stan, ipca_stan; //  *) xw: converted I [pA/pF] from sumjcabk and sumjslcap [uM/ms]
   double ir_ss, ir_ct;
