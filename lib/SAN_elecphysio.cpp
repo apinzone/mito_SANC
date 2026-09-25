@@ -130,6 +130,7 @@ SAN_elecphysio::SAN_elecphysio() {
 	isus = 0.0;
 	inaca = 0.0;
 	ito = 0.0;
+	ikATP = 0.0;
 	icap = 0.0;
 }
 SAN_elecphysio::~SAN_elecphysio() {
@@ -279,10 +280,10 @@ int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave) {
 	ito = par_SA[-1 + 11] * gto * q * r * (v - ek);
 
 	// IKATP - ATP Dependent K+ Current ****************************************
-	double gamma_kATP = 0.236 * pow(ko, 0.24) ;
+	double gamma_kATP = 0.0236 * pow(ko, 0.24) ;
 	double p_kATP = 0.8 / (1.0 + ATP_ave / 100.0 * ATP_ave / 100.0);
 	ikATP = n_kATP / capacitance * gamma_kATP * (y[36] - ek) * p_kATP;
-	
+
 	//  Isus - Sustained component of 4-AP-sensitive currents ******************
 	isus = par_SA[-1 + 12] * gsus * r * (v - ek);
 
@@ -355,7 +356,7 @@ int SAN_elecphysio::update_Na_K_concentration(double t) {
 	double nai_tot = ihna + ina_ttxr + ina_ttxs + 3.0 * inak + 3.0 * inaca + ist + ibna;
 	double nai_dot = (-nai_tot) / (F * vi);
 
-	double ki_tot = ihk + iks + ikr + ik1 + ibk - 2.0 * inak + isus + ito;
+	double ki_tot = ihk + iks + ikr + ik1 + ibk + ikATP - 2.0 * inak + isus + ito;
 	double ki_dot = (-ki_tot) / (F * vi);
 
 
@@ -379,7 +380,7 @@ int SAN_elecphysio::com_total_current(double t) {
 	double v = y[37-1];
 
 	ib = (ibna + ibca + ibk);
-	double total_current = ih + ina_ttxr + ina_ttxs + ical12 + ical13 + iks + ikr + ik1 + ist + ib + icat + inak + isus + inaca + ito + icap;
+	double total_current = ih + ina_ttxr + ina_ttxs + ical12 + ical13 + iks + ikr + ik1 + ist + ib + icat + inak + isus + inaca + ito + ikATP + icap;
 	double v_dot = - (total_current) / capacitance;
 	ydot[-1 + 37] = v_dot;
 	return 1;
