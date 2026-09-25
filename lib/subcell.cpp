@@ -1063,7 +1063,7 @@ void CSubcell::pace(double v, double nai)
   {
     //SERCA Uptake current Iup
     const double H = 1.787;
-    ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ; //compute local ADP per CRU
+    double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ; //compute local ADP per CRU
     double fSERCA_ATP = 1.0 / (1.0 + ADP_local/kiupprime + (1.0 + ADP_local/kiup) * kmupATP/ATP_cyto[id]);
     double Iup = fSERCA_ATP * SERCA_scale * vup * (pow(ci[id] / kup, H) - pow(cnsr[id] / KNSR, H)) / (1 + pow(ci[id] / kup, H) + pow(cnsr[id] / KNSR, H));
 
