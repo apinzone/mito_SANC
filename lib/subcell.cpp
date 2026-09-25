@@ -263,7 +263,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     ATP_cyto[i] = 5000; //Song et al.
     ADP_free[i] = 50; //Song et al. 
   }
-  
+  avg_ATP = 5000 ;
+
 #ifdef ___DETERMINISTIC
   c1 = new double [n];
   c2 = new double [n];
@@ -1252,7 +1253,7 @@ void CSubcell::pace(double v, double nai)
       trace_atp0 = ATP;
       trace_adp0 = ADP;
     }
-    
+
     //Compute Mito Psi 
     //Scaling for Uni and NCx 
     double I_uni = z_Ca * (1/ C_mito) * J_uni ;

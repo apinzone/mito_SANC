@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
 	SAN_elecphysio Cell;
 
-	int Tn = 60000.0 / dt;
+	int Tn = 30000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -136,8 +136,9 @@ int main(int argc, char *argv[]) {
 	
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
+	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
+	ikatp_inak_serca_trace << "time\tATP_ave\tp_kATP\tikATP\tinak\tIup_avg\n";
 
-	
 	// print CRu type with producer mito
 	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
 	for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito) {
@@ -225,7 +226,7 @@ int main(int argc, char *argv[]) {
 		Cell.icat = sc.ICaT_tot * 0.025;
 
 		// Cell.update(t+dt/2.0);
-		Cell.update_Na_and_K_currents(t);
+		Cell.update_Na_and_K_currents(t, sc.avg_ATP);
 
 		// Cell.update_Ca_currents(t);
 		// Cell.com_INaCa(t);
@@ -265,7 +266,10 @@ int main(int argc, char *argv[]) {
 			}
 			atp_full << "\n";
 			atp_full.flush();
-
+			ikatp_inak_serca_trace << t << "\t" << sc.avg_ATP << "\t" << Cell.p_kATP
+                   << "\t" << Cell.ikATP << "\t" << Cell.inak
+                   << "\t" << sc.iupave << "\n";
+			ikatp_inak_serca_trace.flush();
 			int j_mid = sc.ny / 2;
 			int k_mid = sc.nz / 2;
 			int i_fixed = sc.nx / 2;   // x index, arbitrary (all x are producer-level)

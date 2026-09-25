@@ -92,6 +92,7 @@ public:
 	double iks;
 	double ik1;
 	double ikATP;
+	double p_kATP; 
 	double isus, ibna, ibca, ibk, ib;
 	double icap;
 	double ihk, ihna, ih;  //funny current
