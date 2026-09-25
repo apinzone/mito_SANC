@@ -95,6 +95,8 @@
   double KmPCa = 0.5e-3;     // [mM]
   double Q10SLCaP = 2.35;    // [none]
 
+  //IK_ATP Parameters
+  double n_kATP = 2333 ;  //gamma_KATP computed in elecphysio with function call, cannot put pow in constexpr calls 
   // SR flux parameters
   double Q10SRCaP = 2.6;          // [none]
   double Vmax_SRCaP = 5.3114e-3;  // [mM/msec] (286 umol/L cytosol/sec)

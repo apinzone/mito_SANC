@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
 
 	SAN_elecphysio Cell;
 
-	int Tn = 100000.0 / dt;
+	int Tn = 30000.0 / dt;
 	ofstream os("ci.txt");
-	double v = -80;
+	double v = -80; 
 
 #ifdef CAV3_INCX
 	if (argc == 3) {
@@ -136,8 +136,9 @@ int main(int argc, char *argv[]) {
 	
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
+	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
+	ikatp_inak_serca_trace << "time\tATP_ave\tp_kATP\tikATP\tinak\tIup_avg\n";
 
-	
 	// print CRu type with producer mito
 	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
 	for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito) {
@@ -162,6 +163,14 @@ int main(int argc, char *argv[]) {
 	}
 
 	sc.output_map(producer_highlight, "producer_highlight.vtk", 0,0,0);  // default CRU-grid dims
+	std::ofstream producer_mask("producer_mask.txt");
+	for (int i = 0; i < sc.n; ++i) {
+		producer_mask << producer_highlight[i];
+		if (i < sc.n - 1) producer_mask << "\t";
+	}
+	producer_mask << "\n";
+	producer_mask.close();
+
 	delete [] producer_highlight;
 	// to simulate ion current blockade
 	// sc.ncx_scale = 0.4;
@@ -180,7 +189,7 @@ int main(int argc, char *argv[]) {
 		double t = tn * dt;
 
 		// note that Cm = 0.025 nF from SAN_elecphysio.hpp // 16:21:14, Mon, 04-May-2020, By Haibo
-		Cell.update_Na_and_K_currents(t);
+		Cell.update_Na_and_K_currents(t, sc.avg_ATP, sc.avg_ADP);
 
 
 		// time capacitance of the cell here, capacitance = 0.025 in the original Kharche model; 
@@ -217,7 +226,7 @@ int main(int argc, char *argv[]) {
 		Cell.icat = sc.ICaT_tot * 0.025;
 
 		// Cell.update(t+dt/2.0);
-		Cell.update_Na_and_K_currents(t);
+		Cell.update_Na_and_K_currents(t, sc.avg_ATP, sc.avg_ADP);
 
 		// Cell.update_Ca_currents(t);
 		// Cell.com_INaCa(t);
@@ -257,7 +266,10 @@ int main(int argc, char *argv[]) {
 			}
 			atp_full << "\n";
 			atp_full.flush();
-
+			ikatp_inak_serca_trace << t << "\t" << sc.avg_ATP << "\t" << Cell.p_kATP
+                   << "\t" << Cell.ikATP << "\t" << Cell.inak
+                   << "\t" << sc.iupave << "\n";
+			ikatp_inak_serca_trace.flush();
 			int j_mid = sc.ny / 2;
 			int k_mid = sc.nz / 2;
 			int i_fixed = sc.nx / 2;   // x index, arbitrary (all x are producer-level)

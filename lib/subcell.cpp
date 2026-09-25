@@ -56,6 +56,10 @@ CSubcell::CSubcell(int sizex, int sizey, int sizez, int fmesh, double xii)
   vup = 0.3; //[uM/ms]  // original
   vup = 0.3 * 4; //[uM/ms] // 16:25:22, Tue, 13-August-2019, By Haibo
   vup = 0.3 * 4; //[uM/ms] // 17:35:32, Thu, 09-January-2020, By Haibo
+  //ATP Dependent SERCA Pars // 25-September-2026, By Anthony
+  kmupATP = 10.0 ; 
+  kiup = 140 ;
+  kiupprime = 5100 ; 
   // vnaca=21.0;  //*) xw : [uM/ms];When using the Cmem as 310pF, vnaca shoule be 21.0[uM/ms] or 3.155 [A/F]; after using 110pF, it should be 7.452 [uM/ms]
   // vnaca = 7.452 * 4;
   // vnaca=21.0*0.7;  // *) xw: change the maxium NCX flux according to the Atrium -70% INCX;
@@ -263,7 +267,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     ATP_cyto[i] = 5000; //Song et al.
     ADP_free[i] = 50; //Song et al. 
   }
-  
+  avg_ATP = 5000 ; //initialize avg array with IC value
+  avg_ADP = 50 ; //initialize avg array with IC value
 #ifdef ___DETERMINISTIC
   c1 = new double [n];
   c2 = new double [n];
@@ -1058,10 +1063,11 @@ void CSubcell::pace(double v, double nai)
   {
     //SERCA Uptake current Iup
     const double H = 1.787;
-    double Iup = SERCA_scale * vup * (pow(ci[id] / kup, H) - pow(cnsr[id] / KNSR, H)) / (1 + pow(ci[id] / kup, H) + pow(cnsr[id] / KNSR, H));
+    double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ; //compute local ADP per CRU
+    double fSERCA_ATP = 1.0 / (1.0 + ADP_local/kiupprime + (1.0 + ADP_local/kiup) * kmupATP/ATP_cyto[id]);
+    double Iup = fSERCA_ATP * SERCA_scale * vup * (pow(ci[id] / kup, H) - pow(cnsr[id] / KNSR, H)) / (1 + pow(ci[id] / kup, H) + pow(cnsr[id] / KNSR, H));
 
     j_serca[id] = Iup; //  [uM/ms]s
-
     //Leak current Ileak
     const double KJSR = 500;
     double cjsr2 = cnsr[id] * cnsr[id];
@@ -1252,6 +1258,7 @@ void CSubcell::pace(double v, double nai)
       trace_atp0 = ATP;
       trace_adp0 = ADP;
     }
+
     //Compute Mito Psi 
     //Scaling for Uni and NCx 
     double I_uni = z_Ca * (1/ C_mito) * J_uni ;
@@ -1263,7 +1270,7 @@ void CSubcell::pace(double v, double nai)
         trace_prod0 = VATPase;
     }
     //Integrate Mito Ca, Psi mito, and ATP
-    ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ; //ASSUMING NO DIFFUSION
+    ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ;
     psi_mito[id_mito] += dt * psi_mito_dot ;
     ATP_prod_rate[prod_id] = VATPase; //Prod. CRUs only
     //ATP_cyto[prod_id] += dt * dATPdt ;
@@ -1290,6 +1297,7 @@ void CSubcell::pace(double v, double nai)
       sum_ATP_all += ATP_cyto[id];
   }
   avg_ATP = sum_ATP_all / n;
+  avg_ADP = ADP_buffer_rate * (TAN -avg_ATP);
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
   avg_cp_prod = sum_cp_prod / n_mito;

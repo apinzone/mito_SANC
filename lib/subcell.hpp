@@ -89,6 +89,7 @@ public:
 
   double dt;
   double vup, kup, KNSR;
+  double kmupATP, kiup, kiupprime; //ATP-dependent SERCA pars
   double vnaca;
   double Jmax;
   double taup;
@@ -179,6 +180,7 @@ public:
   
   //for test
   double avg_ATP;
+  double avg_ADP;
   double avg_ca_mito;
   double avg_psi_mito;
   double avg_cp_prod ; 
@@ -264,7 +266,6 @@ public:
   void pace(double v, double nai);
   void pace_new(double v, double nai);
   //set Nerst parameters
-
   double iupave, icaave, incxave, irave, ileakave, icabkave, islcapave;
   double ica_stan, incx_stan; //  *) xw: converted I [pA/pF] from sumica and sumncx [uM/ms]
   double icabk_stan, ipca_stan; //  *) xw: converted I [pA/pF] from sumjcabk and sumjslcap [uM/ms]
@@ -387,9 +388,6 @@ public:
 
 
 
-
-
-
   //#ifdef ___SIGMOID
   void setKcp(double newKcp) {Kcp = newKcp;};
   double getKcp(void) {return Kcp;};
@@ -434,8 +432,6 @@ public:
   void resetBuffer(void);
 
 
-
-
   void check_crupos() {
 
     for (int i = 0; i < n; ++i)
@@ -469,10 +465,6 @@ void set_CRU_type();
 void assign_mito() ; 
 void assign_producer_CRU(); 
 
-
-
-
-
   // static const double cao = 1.8; // [mM]
   // static const double ko = 5.4;
   // static const double nao = 136; //  [mM]
@@ -505,8 +497,6 @@ void assign_producer_CRU();
 
 
 // Definition of template function should be in .h or .hpp file
-
-
 template<typename U>
 void CSubcell::output_map(U *map, const char outputfile[], int dimx, int dimy, int dimz) {
   ofstream out_ci(outputfile);
