@@ -148,7 +148,7 @@ int SAN_elecphysio::update_state_FE(double dt) {
 }
 
 
-int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave) {
+int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave, double ADP_ave) {
 	// State variables
 	double dst       = y[1 - 1];
 	double fst       = y[2 - 1];
@@ -282,8 +282,8 @@ int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave) {
 
 	// IKATP - ATP Dependent K+ Current **************************************** Added 9-25-26 - Anthony Pinzone
 	double gamma_kATP = 0.0236 * pow(ko, 0.24) ;
-	double p_kATP = 0.8 / (1.0 + ATP_ave / 100.0 * ATP_ave / 100.0);
-	ikATP = n_kATP * gamma_kATP * (y[36] - ek) * p_kATP; //Removed capacitance from Song's equation; we divide capacitance later
+	p_kATP = 0.8 / (1.0 + ATP_ave / 100.0 * ATP_ave / 100.0);
+	ikATP = n_kATP * gamma_kATP * (y[36] - ek) * p_kATP * iKATP_scale; //Removed capacitance from Song's equation; we divide capacitance later
 
 	//  Isus - Sustained component of 4-AP-sensitive currents ******************
 	isus = par_SA[-1 + 12] * gsus * r * (v - ek);
@@ -293,7 +293,8 @@ int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave) {
 	ibk = gbk * (v - ek);
 
 	//    INaK - Na-K pump current ***********************************************
-	inak = par_SA[15 - 1] * inakmax * ((pow(ko, 1.2)) / (pow(kmkp, 1.2) + pow(ko, 1.2))) * (pow(nai, 1.3) / (pow(kmnap, 1.3) + pow(nai, 1.3))) / (1.0 + exp(-(v - ena + 120.0) / 30.0));
+	double fATP_nak = ATP_ave / (ATP_ave + (k1ATPnak) * (1.0 + ADP_ave / kiADPnak)) ;
+	inak = (par_SA[15 - 1] * inakmax * ((pow(ko, 1.2)) / (pow(kmkp, 1.2) + pow(ko, 1.2))) * (pow(nai, 1.3) / (pow(kmnap, 1.3) + pow(nai, 1.3))) / (1.0 + exp(-(v - ena + 120.0) / 30.0))) * fATP_nak;
 
 
 	//     Jrel = par_SA(17)*ks*open*(caup - casub);

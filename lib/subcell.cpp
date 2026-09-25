@@ -263,8 +263,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     ATP_cyto[i] = 5000; //Song et al.
     ADP_free[i] = 50; //Song et al. 
   }
-  avg_ATP = 5000 ;
-
+  avg_ATP = 5000 ; //initialize avg array with IC value
+  avg_ADP = 50 ; //initialize avg array with IC value
 #ifdef ___DETERMINISTIC
   c1 = new double [n];
   c2 = new double [n];
@@ -1292,6 +1292,7 @@ void CSubcell::pace(double v, double nai)
       sum_ATP_all += ATP_cyto[id];
   }
   avg_ATP = sum_ATP_all / n;
+  avg_ADP = ADP_buffer_rate * (TAN -avg_ATP)''
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
   avg_cp_prod = sum_cp_prod / n_mito;

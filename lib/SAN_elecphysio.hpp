@@ -50,7 +50,7 @@ public:
 
 	int update_single_time_step(double);
 	int update_state_FE(double);
-	int update_Na_and_K_currents(double, double);
+	int update_Na_and_K_currents(double, double, double);
 	int update_Ca_currents(double);
 	int com_INaCa(double);
 	int com_SR_flux(double);
@@ -161,6 +161,8 @@ public:
 	//     //inakmax_multiplier = (1-(t>10e3)*(t<40e3)*0.50); // transient NKA block
 	// end
 	double inakmax = inakmax_multiplier * 1.85 * 0.077;
+	double k1ATPnak = 8 ; //ATP dependence of Na/K
+	double kiADPnak= 100 ; //ADP dependence of Na/K
 	double kmnap = 14.0;
 	double kmkp = 1.4;
 	double K1ni = 395.3;
@@ -177,8 +179,8 @@ public:
 	double Qn = 0.4315;
 	double tdifca = 0.04;
 	double Ttr = 40.0;
-	double n_kATP = 2333 ; 
-
+	double n_kATP = 2333 ; //Number of ikATP channels (Song default) 
+	double iKATP_scale = 0.01 ; //Temporarily scaled down, difference in build from Song
 	//  Buffer
 	double ConcTC = 0.031;
 	double kfTC = 88.8;

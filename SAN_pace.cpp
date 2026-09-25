@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
 	int Tn = 30000.0 / dt;
 	ofstream os("ci.txt");
-	double v = -80;
+	double v = -80; 
 
 #ifdef CAV3_INCX
 	if (argc == 3) {
@@ -189,7 +189,7 @@ int main(int argc, char *argv[]) {
 		double t = tn * dt;
 
 		// note that Cm = 0.025 nF from SAN_elecphysio.hpp // 16:21:14, Mon, 04-May-2020, By Haibo
-		Cell.update_Na_and_K_currents(t, sc.avg_ATP);
+		Cell.update_Na_and_K_currents(t, sc.avg_ATP, sc.avg_ADP);
 
 
 		// time capacitance of the cell here, capacitance = 0.025 in the original Kharche model; 
@@ -226,7 +226,7 @@ int main(int argc, char *argv[]) {
 		Cell.icat = sc.ICaT_tot * 0.025;
 
 		// Cell.update(t+dt/2.0);
-		Cell.update_Na_and_K_currents(t, sc.avg_ATP);
+		Cell.update_Na_and_K_currents(t, sc.avg_ATP, sc.avg_ADP);
 
 		// Cell.update_Ca_currents(t);
 		// Cell.com_INaCa(t);

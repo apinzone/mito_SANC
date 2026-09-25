@@ -179,6 +179,7 @@ public:
   
   //for test
   double avg_ATP;
+  double avg_ADP;
   double avg_ca_mito;
   double avg_psi_mito;
   double avg_cp_prod ; 

@@ -13,6 +13,25 @@ psi_mito  = data.avg_psi_mito;
 avg_cai   = data.avg_cai;       % whole-cell average cytosolic Ca
 avg_cp    = data.avg_cp_prod;   % cleft Ca, averaged over producer CRUs only (mito Ca input)
 
+%% Whole-cell Vm and Cai (ci.txt)
+% ci.txt columns (space-delimited, no header): time  vm  cai  ...
+ci_data = readtable('ci.txt', 'FileType', 'text', 'Delimiter', ' ', 'ReadVariableNames', false);
+t_ci   = ci_data{:, 1};
+vm_ci  = ci_data{:, 2};
+cai_ci = ci_data{:, 3};
+
+figure('Name', 'Whole-Cell Vm and Cai', 'Position', [100 1100 900 500], 'Color', 'w');
+subplot(2,1,1);
+plot(t_ci, vm_ci, 'k', 'LineWidth', 1.2);
+ylabel('V_m (mV)');
+title('Whole-Cell Membrane Voltage and Ca_i');
+
+subplot(2,1,2);
+plot(t_ci, cai_ci, 'LineWidth', 1.2, 'Color', [0.00 0.45 0.74]);
+ylabel('Ca_i (\muM)');
+xlabel('Time (ms)');
+%savefig('whole_cell_vm_cai_ATPD_0.1.fig')
+
 figure('Name', 'Whole-Cell Averages Ca and Mito', 'Position', [100 100 900 950]);
 
 subplot(4,1,1);
@@ -33,7 +52,7 @@ subplot(4,1,4);
 plot(t, psi_mito, 'LineWidth', 1.5, 'Color', [0.49 0.18 0.56]);
 ylabel('avg \Psi_{mito} (mV)');
 xlabel('Time (ms)');
-savefig('whole_cell_avg_psi_ca_ATPD_0.1.fig')
+%savefig('whole_cell_avg_psi_ca_ATPD_0.1.fig')
 
 figure('Name', 'Whole-Cell ATP/ADP', 'Position', [100 100 900 950]);
 yyaxis left;
@@ -42,7 +61,7 @@ ylabel('ATP (\muM)');
 yyaxis right;
 plot(t, adp, 'LineWidth', 1.5);
 ylabel('ADP (\muM)');
-savefig('whole_cell_avg_ATP_ATPD_0.1.fig')
+%savefig('whole_cell_avg_ATP_ATPD_0.1.fig')
 
 %% Single-mito trace (mito0_trace.txt)
 % Columns: time  cp0  cai0  J_uni0  jNCX_m0  ca_mito0  psi_mito0  atp0  adp0  prod0  consum0  diff0
@@ -87,7 +106,7 @@ ylabel('\Psi_{mito,0} (mV)');
 subplot(4,1,4);
 plot(t0, ca_mito0, 'LineWidth', 1.5, 'Color', [0.47 0.67 0.19]);
 ylabel('Ca_{mito,0} (\muM)');
-savefig('Prod_only_psi_ca_ATPD_0.1.fig')
+%savefig('Prod_only_psi_ca_ATPD_0.1.fig')
 
 figure('Name', 'Mito 0 Trace ATP/ADP', 'Position', [1050 100 900 1050]);
 yyaxis left;
@@ -96,7 +115,8 @@ ylabel('ATP_0 (\muM)');
 yyaxis right;
 plot(t0, adp0, 'LineWidth', 1.5);
 ylabel('ADP_0 (\muM)');
-savefig('Prod_only_ATP_ATPD_0.1.fig')
+
+%savefig('Prod_only_ATP_ATPD_0.1.fig')
 %Compare average ATP for simulation between producer and nonproduer crus
 atp_grid = readmatrix('atp_full_grid.txt', 'FileType', 'text', 'Delimiter', '\t');
 mask     = readmatrix('producer_mask.txt', 'FileType', 'text', 'Delimiter', '\t');
@@ -117,5 +137,5 @@ plot(t_grid, atp_diff, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
 xlabel('Time (ms)');
 ylabel('ATP_{producer} - ATP_{non-producer} (\muM)');
 title('Producer vs. Non-Producer ATP Difference Over Time');
-savefig('ATP_Diff_ATPD_0.1.fig')
+%savefig('ATP_Diff_ATPD_0.1.fig')
  
