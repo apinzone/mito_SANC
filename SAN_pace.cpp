@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
 	SAN_elecphysio Cell;
 
-	int Tn = 100000.0 / dt;
+	int Tn = 60000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -162,6 +162,14 @@ int main(int argc, char *argv[]) {
 	}
 
 	sc.output_map(producer_highlight, "producer_highlight.vtk", 0,0,0);  // default CRU-grid dims
+	std::ofstream producer_mask("producer_mask.txt");
+	for (int i = 0; i < sc.n; ++i) {
+		producer_mask << producer_highlight[i];
+		if (i < sc.n - 1) producer_mask << "\t";
+	}
+	producer_mask << "\n";
+	producer_mask.close();
+
 	delete [] producer_highlight;
 	// to simulate ion current blockade
 	// sc.ncx_scale = 0.4;
@@ -180,7 +188,7 @@ int main(int argc, char *argv[]) {
 		double t = tn * dt;
 
 		// note that Cm = 0.025 nF from SAN_elecphysio.hpp // 16:21:14, Mon, 04-May-2020, By Haibo
-		Cell.update_Na_and_K_currents(t);
+		Cell.update_Na_and_K_currents(t, sc.avg_ATP);
 
 
 		// time capacitance of the cell here, capacitance = 0.025 in the original Kharche model; 

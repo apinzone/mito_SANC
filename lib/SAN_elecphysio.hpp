@@ -50,7 +50,7 @@ public:
 
 	int update_single_time_step(double);
 	int update_state_FE(double);
-	int update_Na_and_K_currents(double);
+	int update_Na_and_K_currents(double, double);
 	int update_Ca_currents(double);
 	int com_INaCa(double);
 	int com_SR_flux(double);
@@ -91,6 +91,7 @@ public:
 	double ikr;
 	double iks;
 	double ik1;
+	double ikATP;
 	double isus, ibna, ibca, ibk, ib;
 	double icap;
 	double ihk, ihna, ih;  //funny current
@@ -175,6 +176,7 @@ public:
 	double Qn = 0.4315;
 	double tdifca = 0.04;
 	double Ttr = 40.0;
+	double n_kATP = 2333 ; 
 
 	//  Buffer
 	double ConcTC = 0.031;
@@ -191,8 +193,6 @@ public:
 	double ConcCQ = 10.0;
 	double kfCQ = 0.534;
 	double kbCQ = 0.445;
-
-
 
 	double koca = 10.0;
 	double kom = 0.06;

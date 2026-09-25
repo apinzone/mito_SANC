@@ -1,6 +1,5 @@
 
 #include "SAN_elecphysio.hpp"
-
 #include "ExplicitSolver.hpp"
 
 SAN_elecphysio::SAN_elecphysio() {
@@ -147,7 +146,7 @@ int SAN_elecphysio::update_state_FE(double dt) {
 }
 
 
-int SAN_elecphysio::update_Na_and_K_currents(double t) {
+int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave) {
 	// State variables
 	double dst       = y[1 - 1];
 	double fst       = y[2 - 1];
@@ -279,6 +278,11 @@ int SAN_elecphysio::update_Na_and_K_currents(double t) {
 	double r_dot = (r_inf - r) / tau_r;
 	ito = par_SA[-1 + 11] * gto * q * r * (v - ek);
 
+	// IKATP - ATP Dependent K+ Current ****************************************
+	double gamma_kATP = 0.236 * pow(ko, 0.24) ;
+	double p_kATP = 0.8 / (1.0 + ATP_ave / 100.0 * ATP_ave / 100.0);
+	ikATP = n_kATP / capacitance * gamma_kATP * (y[36] - ek) * p_kATP;
+	
 	//  Isus - Sustained component of 4-AP-sensitive currents ******************
 	isus = par_SA[-1 + 12] * gsus * r * (v - ek);
 

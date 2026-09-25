@@ -33,6 +33,7 @@ subplot(4,1,4);
 plot(t, psi_mito, 'LineWidth', 1.5, 'Color', [0.49 0.18 0.56]);
 ylabel('avg \Psi_{mito} (mV)');
 xlabel('Time (ms)');
+savefig('whole_cell_avg_psi_ca_ATPD_0.1.fig')
 
 figure('Name', 'Whole-Cell ATP/ADP', 'Position', [100 100 900 950]);
 yyaxis left;
@@ -41,6 +42,7 @@ ylabel('ATP (\muM)');
 yyaxis right;
 plot(t, adp, 'LineWidth', 1.5);
 ylabel('ADP (\muM)');
+savefig('whole_cell_avg_ATP_ATPD_0.1.fig')
 
 %% Single-mito trace (mito0_trace.txt)
 % Columns: time  cp0  cai0  J_uni0  jNCX_m0  ca_mito0  psi_mito0  atp0  adp0  prod0  consum0  diff0
@@ -60,8 +62,7 @@ prod0     = data0.prod0;    % local ATP production rate (VATPase) at mito0's pro
 consum0   = data0.consum0;  % local ATP consumption rate (VATP_consum) at that same CRU
 diff0     = data0.diff0;    % net diffusive term (J_ATP_D) at that same CRU
 
-figure('Name', 'Mito 0 Trace', 'Position', [1050 100 900 1050]);
-
+figure('Name', 'Prod Trace', 'Position', [1050 100 900 1050]);
 subplot(4,1,1);
 plot(t0, cp0, 'LineWidth', 1.5);
 ylabel('cp_0 (\muM)');
@@ -86,6 +87,7 @@ ylabel('\Psi_{mito,0} (mV)');
 subplot(4,1,4);
 plot(t0, ca_mito0, 'LineWidth', 1.5, 'Color', [0.47 0.67 0.19]);
 ylabel('Ca_{mito,0} (\muM)');
+savefig('Prod_only_psi_ca_ATPD_0.1.fig')
 
 figure('Name', 'Mito 0 Trace ATP/ADP', 'Position', [1050 100 900 1050]);
 yyaxis left;
@@ -94,99 +96,26 @@ ylabel('ATP_0 (\muM)');
 yyaxis right;
 plot(t0, adp0, 'LineWidth', 1.5);
 ylabel('ADP_0 (\muM)');
+savefig('Prod_only_ATP_ATPD_0.1.fig')
+%Compare average ATP for simulation between producer and nonproduer crus
+atp_grid = readmatrix('atp_full_grid.txt', 'FileType', 'text', 'Delimiter', '\t');
+mask     = readmatrix('producer_mask.txt', 'FileType', 'text', 'Delimiter', '\t');
 
-% subplot(7,1,7);
-% plot(t0, prod0, 'LineWidth', 1.5, 'Color', [0.00 0.60 0.20]);
-% hold on;
-% plot(t0, consum0, 'LineWidth', 1.5, 'Color', [0.80 0.10 0.10]);
-% plot(t0, diff0, 'LineWidth', 1.5, 'Color', [0.30 0.30 0.30]);
-% hold off;
-% ylabel('rate (\muM/ms)');
-% xlabel('Time (ms)');
-% legend({'production (V_{ATPase})', 'consumption (V_{ATP,consum})', 'net diffusion (J_{ATP,D})'}, 'Location', 'best');
-% title('Competing ATP rate terms at mito 0''s producer CRU');
+prod_cols    = find(mask == 1);
+nonprod_cols = find(mask == 0);
 
+atp_prod_avg    = mean(atp_grid(:, prod_cols), 2);
+atp_nonprod_avg = mean(atp_grid(:, nonprod_cols), 2);
+atp_diff        = atp_prod_avg - atp_nonprod_avg;
 
-%% ATP linescan (atp_linescan.txt)
-% One row per output snapshot (every 100 steps), one column per CRU
-% along y at fixed x = nx/2, z = nz/2. Tab-delimited, no header.
+dt = 0.01;                                     % must match SAN_pace.cpp
+output_interval = 100;                     
+t_grid = (0:size(atp_grid,1)-1)' * output_interval * dt;   % ms
 
- 
-%data = readmatrix('atp_linescan.txt', 'FileType', 'text', 'Delimiter', '\t');
- 
-%figure('Position', [100 850 900 400], 'Color', 'w');
- 
-%[rows, cols] = size(data);
-%scale_factor = 3;   % try 2-5; higher = smoother
-%[X, Y]   = meshgrid(1:cols, 1:rows);
-%[Xq, Yq] = meshgrid(linspace(1, cols, cols*scale_factor), linspace(1, rows, rows*scale_factor));
-%data_smooth = interp2(X, Y, data, Xq, Yq, 'spline');
- 
-%imagesc(data_smooth');
-%colormap('jet');
-% caxis([4955, 5000]);   % set once you know a good comparison range across runs; auto-scaled for now
-%set(gca, 'YTick', [], 'XTick', [], 'XTickLabel', [], 'Color', 'w', 'XColor', 'k', 'YColor', 'k');
-%gca_ax = gca; gca_ax.XAxis.Visible = 'off';
-%ylabel(sprintf('%.1f \\mum', rows * 0.9));   % ny * l_T_atp, physical extent along y
-%cb = colorbar;
-%cb.Label.String = 'ATP_{cyto} (\muM)';
-%cb.Color = 'k';
-%box off;
-%% ATP linescan (atp_linescan.txt), styled to match Haibo's Ca linescan script
-% One row per output snapshot (every 100 steps), one column per CRU
-% along y at fixed x = nx/2, z = nz/2. Tab-delimited, no header.
-% data layout matches Haibo's: rows = time, columns = space.
-
-data = readmatrix('atp_linescan.txt', 'FileType', 'text', 'Delimiter', '\t');
-
-figure('Position', [100 850 900 400], 'Color', 'w');
-
-[rows, cols] = size(data);
-scale_factor = 3;   % try 2-5; higher = smoother
-[X, Y]   = meshgrid(1:cols, 1:rows);
-[Xq, Yq] = meshgrid(linspace(1, cols, cols*scale_factor), linspace(1, rows, rows*scale_factor));
-data_smooth = interp2(X, Y, data, Xq, Yq, 'spline');
-
-imagesc(data_smooth');
-colormap('jet');
-% caxis([4955, 5000]);   % set once you know a good comparison range across runs; auto-scaled for now
-set(gca, 'YTick', [], 'XTick', [], 'XTickLabel', [], 'Color', 'w', 'XColor', 'k', 'YColor', 'k');
-gca_ax = gca; gca_ax.XAxis.Visible = 'off';
-ylabel(sprintf('%.1f \\mum', rows * 0.9));   % ny * l_T_atp, physical extent along y
-cb = colorbar;
-cb.Label.String = 'ATP_{cyto} (\muM)';
-cb.Color = 'k';
-box off;
-
-%% Same linescan, but as deviation from each snapshot's own spatial mean
-% Raw ATP_cyto sits on a slowly drifting ~5000 uM baseline that swamps the
-% actual spatial signal (~0.01-0.3 uM) visually. Subtracting each row's
-% (snapshot's) own mean removes that common drift and rescales the color
-% axis to just the spatial structure -- same trick as dF/F0 normalization
-% in Ca imaging.
-
-data_dev = data - mean(data, 2);   % subtract each snapshot's row-mean
-
-[rows_d, cols_d] = size(data_dev);
-[Xd, Yd]   = meshgrid(1:cols_d, 1:rows_d);
-[Xqd, Yqd] = meshgrid(linspace(1, cols_d, cols_d*scale_factor), linspace(1, rows_d, rows_d*scale_factor));
-data_dev_smooth = interp2(Xd, Yd, data_dev, Xqd, Yqd, 'spline');
-
-figure('Position', [100 1300 900 400], 'Color', 'w');
-
-imagesc(data_dev_smooth');
-colormap('jet');
-clim_val = max(abs(data_dev(:)));
-caxis([-clim_val, clim_val]);   % symmetric around zero so the diverging colormap is centered on "no deviation"
-set(gca, 'YTick', [], 'XTick', [], 'XTickLabel', [], 'Color', 'w', 'XColor', 'k', 'YColor', 'k');
-gca_ax = gca; gca_ax.XAxis.Visible = 'off';
-ylabel(sprintf('%.1f \\mum', rows_d * 0.9));
-cb = colorbar;
-cb.Label.String = 'ATP_{cyto} deviation from mean (\muM)';
-cb.Color = 'k';
-box off;
-title('Same linescan, deviation from each snapshot''s spatial mean', 'Color', 'k');
-
-
-
+figure('Name', 'Producer vs Non-Producer ATP', 'Position', [1050 1300 900 400], 'Color', 'w');
+plot(t_grid, atp_diff, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
+xlabel('Time (ms)');
+ylabel('ATP_{producer} - ATP_{non-producer} (\muM)');
+title('Producer vs. Non-Producer ATP Difference Over Time');
+savefig('ATP_Diff_ATPD_0.1.fig')
  

@@ -1252,6 +1252,7 @@ void CSubcell::pace(double v, double nai)
       trace_atp0 = ATP;
       trace_adp0 = ADP;
     }
+    
     //Compute Mito Psi 
     //Scaling for Uni and NCx 
     double I_uni = z_Ca * (1/ C_mito) * J_uni ;
@@ -1263,7 +1264,7 @@ void CSubcell::pace(double v, double nai)
         trace_prod0 = VATPase;
     }
     //Integrate Mito Ca, Psi mito, and ATP
-    ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ; //ASSUMING NO DIFFUSION
+    ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ;
     psi_mito[id_mito] += dt * psi_mito_dot ;
     ATP_prod_rate[prod_id] = VATPase; //Prod. CRUs only
     //ATP_cyto[prod_id] += dt * dATPdt ;

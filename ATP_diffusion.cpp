@@ -3,13 +3,6 @@
 
 void CSubcell::compute_J_ATP_D(void)
 {
-  // Matches Song's SpatialCell.cu diffusion kernel exactly:
-  //   idl/idr/idu/idd/idi/ido computed per-CRU with no-flux boundary
-  //   condition idl = (idx==0) ? id : id-1  (missing neighbor -> self),
-  //   NOT a mirrored/doubled interior neighbor.
-  //   xiATPdiffu = (atpCytp[idl]+atpCytp[idr]-2*atpCytp[id])*D_atp/l_L/l_L
-  //              + (atpCytp[idu]+atpCytp[idd]+atpCytp[idi]+atpCytp[ido]-4*atpCytp[id])*D_atp/l_T/l_T
-
 #pragma omp parallel for collapse(3)
   for (int k = 0; k < nz; ++k)
   {
@@ -32,3 +25,5 @@ void CSubcell::compute_J_ATP_D(void)
     }
   }
 }
+
+
