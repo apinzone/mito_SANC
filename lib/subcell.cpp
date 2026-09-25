@@ -1292,7 +1292,7 @@ void CSubcell::pace(double v, double nai)
       sum_ATP_all += ATP_cyto[id];
   }
   avg_ATP = sum_ATP_all / n;
-  avg_ADP = ADP_buffer_rate * (TAN -avg_ATP)''
+  avg_ADP = ADP_buffer_rate * (TAN -avg_ATP);
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
   avg_cp_prod = sum_cp_prod / n_mito;
