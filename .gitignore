@@ -2,3 +2,7 @@
 *.txt
 *.bin
 *.vtk
+*.png
+*.fig
+*.jpeg
+

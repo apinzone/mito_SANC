@@ -280,7 +280,7 @@ int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave, double AD
 	double r_dot = (r_inf - r) / tau_r;
 	ito = par_SA[-1 + 11] * gto * q * r * (v - ek);
 
-	// IKATP - ATP Dependent K+ Current **************************************** Added 9-25-26 - Anthony Pinzone
+	// IKATP - ATP Dependent K+ Current **************************************** Added 25-09-26 by Anthony
 	double gamma_kATP = 0.0236 * pow(ko, 0.24) ;
 	p_kATP = 0.8 / (1.0 + ATP_ave / 100.0 * ATP_ave / 100.0);
 	ikATP = n_kATP * gamma_kATP * (y[36] - ek) * p_kATP * iKATP_scale; //Removed capacitance from Song's equation; we divide capacitance later

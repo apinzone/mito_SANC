@@ -180,7 +180,7 @@ public:
 	double tdifca = 0.04;
 	double Ttr = 40.0;
 	double n_kATP = 2333 ; //Number of ikATP channels (Song default) 
-	double iKATP_scale = 0.01 ; //Temporarily scaled down, difference in build from Song
+	double iKATP_scale = 0.001 ; //Scaled down, difference in build from Song
 	//  Buffer
 	double ConcTC = 0.031;
 	double kfTC = 88.8;

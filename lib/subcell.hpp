@@ -181,6 +181,8 @@ public:
   //for test
   double avg_ATP;
   double avg_ADP;
+  bool ATP_clamped;
+  double ATP_clamp;
   double avg_ca_mito;
   double avg_psi_mito;
   double avg_cp_prod ; 

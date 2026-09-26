@@ -267,8 +267,14 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     ATP_cyto[i] = 5000; //Song et al.
     ADP_free[i] = 50; //Song et al. 
   }
+  //ATP_clamped = true ; 
+  ATP_clamped = false ; 
+  ATP_clamp = 5000 ; //initial test: 5000, 2500, 1000, 750, 500, 100, 50, 1 microM of ATP 
+
   avg_ATP = 5000 ; //initialize avg array with IC value
   avg_ADP = 50 ; //initialize avg array with IC value
+
+
 #ifdef ___DETERMINISTIC
   c1 = new double [n];
   c2 = new double [n];
@@ -1281,17 +1287,22 @@ void CSubcell::pace(double v, double nai)
   }
 
   compute_J_ATP_D() ; //Compute Diffusion term for ATP
-  //Finish integrating ATP 
+
+  //Finish integrating ATP with clamp option
   for (int id = 0; id < n; ++ id) {
-    double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ;
-    double VATP_consum = update_ATP_consumption(ATP_cyto[id], ADP_local) ;
-    ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
-    if (id == CRU_producer_status[0]) {
-      trace_consum0 = VATP_consum;
-      trace_diff0   = J_ATP_D[id];
+    if (ATP_clamped == true) {
+      ATP_cyto[id] = ATP_clamp ;
+    } else {
+      double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ;
+      double VATP_consum = update_ATP_consumption(ATP_cyto[id], ADP_local) ;
+      ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
+      if (id == CRU_producer_status[0]) {
+        trace_consum0 = VATP_consum;
+        trace_diff0   = J_ATP_D[id];
+      }
     }
   }
-
+  
   double sum_ATP_all = 0;
   for (int id = 0; id < n; ++id){
       sum_ATP_all += ATP_cyto[id];
