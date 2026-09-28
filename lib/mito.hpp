@@ -13,7 +13,8 @@ static constexpr int N_mcu = 200 ; //Number of MCUs per mito
 static constexpr double gMCU_max = 8.1 ; //pS
 static constexpr double Km_uni = 19000 ; //micromolar
 static constexpr double zFvmyo = 2.0 * 96.5 * 18 ; //z of 2 for Ca, 18 microl for vmyo
-
+static constexpr double mito_vol_scale = 1e5 ; //Per CRUs mito volume scaling (rather than whole cell)
+static constexpr double V_matrix_eff = 18.0 / mito_vol_scale; //Volume scaling 
 //Mito NCX - Song supplement 3.2 
 static constexpr double vNCX_max = 0.0035 ; //microM * ms^-1
 static constexpr double mito_v0 = 91 ; //mV
@@ -50,7 +51,8 @@ static constexpr double l_T_atp = 0.9 ; //transverse (y,z) length constant, um (
 inline std::pair<double, double>update_MCU(double ca_space, double mito_psi, double mito_ca){
 double ECa_m = RTzF * log(ca_space/mito_ca) ;
 double iMCU = (gMCU_max / (1 + (Km_uni/ca_space))) *  (mito_psi - ECa_m);
-double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) ;
+//double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) // Original
+double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) * mito_vol_scale ; //Per CRU volume scaling
 return {iMCU, J_uni} ;
 }
 

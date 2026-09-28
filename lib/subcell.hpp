@@ -187,6 +187,7 @@ public:
   double avg_psi_mito;
   double avg_cp_prod ; 
   double trace_ca_mito0, trace_psi_mito0, trace_cp0, trace_Juni0, trace_jncx0;
+  double trace_mitoJfluxCp0, trace_mitoNCXfluxCi0;
   double trace_cai0, trace_atp0, trace_adp0 ; 
   double trace_prod0, trace_consum0, trace_diff0;
   static const double vjsr;
@@ -227,6 +228,7 @@ public:
   double *cscp1, *cscp2, *Itr;
   //SV arrays for mito and ATP 
   double *ca_mito, *psi_mito ; 
+  double *mito_Jflux_cp, *mito_NCXflux_ci ;
   double *ATP_cyto, *ADP_free, *J_ATP_D, *ATP_prod_rate;
 
 #ifdef ___DETERMINISTIC

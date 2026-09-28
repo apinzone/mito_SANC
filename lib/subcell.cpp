@@ -240,6 +240,8 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   Myosin_Mg_vec = new double [nn];
   SRB_vec       = new double [nn];
 
+  mito_Jflux_cp = new double [n] ;
+  mito_NCXflux_ci = new double [n] ;
   psi_mito = new double[n_mito] ;
   ca_mito  = new double[n_mito] ;
   ATP_cyto = new double[n] ; 
@@ -563,6 +565,8 @@ void CSubcell::delarray(void)
   delete [] CRU_producer_status ;
   delete [] CRU_mito_assignment ;
   delete [] CRU_type ;
+  delete [] mito_Jflux_cp ;
+  delete [] mito_NCXflux_ci ;
 
 #ifdef ___DETERMINISTIC
   delete [] c1;
@@ -891,6 +895,69 @@ void CSubcell::pace(double v, double nai)
 
   num_open_ICaL = total_ICaL_open;
 
+  //Compute ATP and Mito initial fluxes - Moved before CRU loop so MCU and NCX fluxes can alter cp and ci concentrations 
+  double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0, sum_cp_prod = 0; //TEST
+    //initialize ATP and mito flux arrays with zeros 
+    for (int id = 0; id < n; ++ id) {
+      ATP_prod_rate[id] = 0;
+      mito_Jflux_cp[id] = 0; 
+      mito_NCXflux_ci[id] = 0 ;
+    }
+
+
+    //Compute mito fluxes, calcium, and Vm as well as ATP
+    for (int id_mito = 0; id_mito < n_mito; ++id_mito){
+      //Extract cleft Ca and cai from 'producer' CRUs 
+      int prod_id = CRU_producer_status[id_mito] ;
+      double ca_cleft_prod = cp[prod_id] ;
+      double cai_prod = ci[prod_id] ;
+      double mito_psi = psi_mito[id_mito] ;
+      double mito_ca = ca_mito[id_mito] ; 
+      //Extract ATP and ADP
+      double ATP = ATP_cyto[prod_id] ;
+      double ADP = ADP_buffer_rate * (TAN - ATP) ;
+      //Calculate fluxes for MCU and mito NCX
+      auto [iMCU, J_uni] = update_MCU(ca_cleft_prod, mito_psi, mito_ca) ;
+      double jNCX_m = update_NCX_mito(cai_prod, mito_psi, mito_ca) ;
+    
+      //Extract one mito for test
+      if (id_mito == 0) {
+        trace_ca_mito0 = ca_mito[0];      
+        trace_psi_mito0 = psi_mito[0];
+        trace_cp0 = ca_cleft_prod;         
+        trace_Juni0 = J_uni;
+        trace_jncx0 = jNCX_m;
+        trace_cai0 = cai_prod;
+        trace_atp0 = ATP;
+        trace_adp0 = ADP;
+        trace_mitoJfluxCp0   = mito_Jflux_cp[prod_id];    // NEW — must come after you write into the array
+        trace_mitoNCXfluxCi0 = mito_NCXflux_ci[prod_id];
+      }
+
+      //Compute Mito Psi 
+      //Scaling for Uni and NCx 
+      double I_uni = z_Ca * (1/ C_mito) * J_uni ;
+      double I_NCX_m = (1/C_mito) * jNCX_m ;
+      double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
+      mito_Jflux_cp[prod_id] = J_uni * (V_matrix_eff / vp[prod_id]) ;
+      mito_NCXflux_ci[prod_id] = jNCX_m * (V_matrix_eff/vi) ;
+
+      //Compute ATP Production (Producer CRUs only)
+      double VATPase = update_ATP_production(mito_psi, ATP, ADP);
+      if (id_mito == 0) {
+          trace_prod0 = VATPase;
+      }
+      //Integrate Mito Ca, Psi mito, and ATP
+      ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ;
+      psi_mito[id_mito] += dt * psi_mito_dot ;
+      ATP_prod_rate[prod_id] = VATPase; //Prod. CRUs only
+
+      //Test
+      sum_ca_mito += ca_mito[id_mito];
+      sum_psi_mito += psi_mito[id_mito];
+      sum_cp_prod += ca_cleft_prod;
+    }
+
 
   #pragma omp parallel for reduction(+: sumica, sumir,sum_jnaca_j_flux,sum_j_jcabk,sum_j_jslcap) schedule(auto)
 // #pragma ivdep
@@ -1034,9 +1101,11 @@ void CSubcell::pace(double v, double nai)
 #endif
 
 #ifdef ___NCX
-    double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - junc_CaT + jnaca - jcabk - jslcap - Idps[crupos[id]] + Ileak * (vi / vp[id]));
+    //double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - junc_CaT + jnaca - jcabk - jslcap - Idps[crupos[id]] + Ileak * (vi / vp[id]));
+    double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - junc_CaT + jnaca - jcabk - jslcap - Idps[crupos[id]] + Ileak * (vi / vp[id])) - mito_Jflux_cp[id];
 #else
-    double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - Idps[crupos[id]]);
+    //double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - Idps[crupos[id]]); //Original no mito 
+    double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - Idps[crupos[id]] - mito_Jflux_cp[id]); //subtracting uni 
 #endif
     if (not CLAMP_Cai)
       cp[id] += dcp * dt;
@@ -1191,9 +1260,11 @@ void CSubcell::pace(double v, double nai)
 
 
 #ifdef ___EGTA
-    double dci = get_cytosol_cai_inst_buffering(ci[id]) * (Idsi * (vs / vi) - Iup + jnaca_ci + Ileak - ITCi - IEGTAi + Ici[id] - j_CaT_ci - ICa_ci);
-#else
-    double dci = get_cytosol_cai_inst_buffering(ci[id]) * (Idsi * (vs / vi) - Iup + jnaca_ci + Ileak - ITCi + Ici[id] - j_CaT_ci - ICa_ci);
+    //double dci = get_cytosol_cai_inst_buffering(ci[id]) * (Idsi * (vs / vi) - Iup + jnaca_ci + Ileak - ITCi - IEGTAi + Ici[id] - j_CaT_ci - ICa_ci); //Original no mito NCX
+    double dci = get_cytosol_cai_inst_buffering(ci[id]) * (Idsi * (vs / vi) - Iup + jnaca_ci + Ileak - ITCi - IEGTAi + Ici[id] - j_CaT_ci - ICa_ci + mito_NCXflux_ci[id]); //With mito NCX
+    #else
+    double dci = get_cytosol_cai_inst_buffering(ci[id]) * (Idsi * (vs / vi) - Iup + jnaca_ci + Ileak - ITCi + Ici[id] - j_CaT_ci - ICa_ci + mito_NCXflux_ci[id]); // With mito NCX 
+    //double dci = get_cytosol_cai_inst_buffering(ci[id]) * (Idsi * (vs / vi) - Iup + jnaca_ci + Ileak - ITCi + Ici[id] - j_CaT_ci - ICa_ci); //Original no mito NCX
 
     // double dci = Idsi * (vs / vi) - Iup + Ileak + Ici[id] - 1000 * calculate_dynamic_buffer_cytosol(id, ci[id] / 1000.0, dt);
 #endif
@@ -1231,61 +1302,7 @@ void CSubcell::pace(double v, double nai)
     sumica_ci += ICa_ci;
 
   }
-  double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0, sum_cp_prod = 0; //TEST
-
-  //initialize ATP production rate array with zeros 
-  for (int id = 0; id < n; ++ id) {
-    ATP_prod_rate[id] = 0;
-  }
-
-  //Compute mito fluxes, calcium, and Vm as well as ATP
-  for (int id_mito = 0; id_mito < n_mito; ++id_mito){
-    //Extract cleft Ca and cai from 'producer' CRUs 
-    int prod_id = CRU_producer_status[id_mito] ;
-    double ca_cleft_prod = cp[prod_id] ;
-    double cai_prod = ci[prod_id] ;
-    double mito_psi = psi_mito[id_mito] ;
-    double mito_ca = ca_mito[id_mito] ; 
-    //Extract ATP and ADP
-    double ATP = ATP_cyto[prod_id] ;
-    double ADP = ADP_buffer_rate * (TAN - ATP) ;
-    //Calculate fluxes for MCU and mito NCX
-    auto [iMCU, J_uni] = update_MCU(ca_cleft_prod, mito_psi, mito_ca) ;
-    double jNCX_m = update_NCX_mito(cai_prod, mito_psi, mito_ca) ;
   
-    //Extract one mito for test
-    if (id_mito == 0) {
-      trace_ca_mito0 = ca_mito[0];      
-      trace_psi_mito0 = psi_mito[0];
-      trace_cp0 = ca_cleft_prod;         
-      trace_Juni0 = J_uni;
-      trace_jncx0 = jNCX_m;
-      trace_cai0 = cai_prod;
-      trace_atp0 = ATP;
-      trace_adp0 = ADP;
-    }
-
-    //Compute Mito Psi 
-    //Scaling for Uni and NCx 
-    double I_uni = z_Ca * (1/ C_mito) * J_uni ;
-    double I_NCX_m = (1/C_mito) * jNCX_m ;
-    double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
-    //Compute ATP Production (Producer CRUs only)
-    double VATPase = update_ATP_production(mito_psi, ATP, ADP);
-    if (id_mito == 0) {
-        trace_prod0 = VATPase;
-    }
-    //Integrate Mito Ca, Psi mito, and ATP
-    ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ;
-    psi_mito[id_mito] += dt * psi_mito_dot ;
-    ATP_prod_rate[prod_id] = VATPase; //Prod. CRUs only
-    //ATP_cyto[prod_id] += dt * dATPdt ;
-    //Test
-    sum_ca_mito += ca_mito[id_mito];
-    sum_psi_mito += psi_mito[id_mito];
-    sum_cp_prod += ca_cleft_prod;
-  }
-
   compute_J_ATP_D() ; //Compute Diffusion term for ATP
 
   //Finish integrating ATP with clamp option

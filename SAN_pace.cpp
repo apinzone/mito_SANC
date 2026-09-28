@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 	std::ofstream mito_summary("mito_summary.txt");
 	std::ofstream mito0_trace("mito0_trace.txt");
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\n";
-	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\n";
+	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\tmitoJfluxCp0\tmitoNCXfluxCi0\n";
 
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
@@ -261,7 +261,8 @@ int main(int argc, char *argv[])
 			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_cai0 << "\t" << sc.trace_Juni0 << "\t"
 						<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0
 						<< "\t" << sc.trace_atp0 << "\t" << sc.trace_adp0
-						<< "\t" << sc.trace_prod0 << "\t" << sc.trace_consum0 << "\t" << sc.trace_diff0 << "\n";
+						<< "\t" << sc.trace_prod0 << "\t" << sc.trace_consum0 << "\t" << sc.trace_diff0
+						<< "\t" << sc.trace_mitoJfluxCp0 << "\t" << sc.trace_mitoNCXfluxCi0 << "\n";
 			mito0_trace.flush();
 			for (int id = 0; id < sc.n; ++id)
 			{
