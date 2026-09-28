@@ -930,8 +930,6 @@ void CSubcell::pace(double v, double nai)
         trace_cai0 = cai_prod;
         trace_atp0 = ATP;
         trace_adp0 = ADP;
-        trace_mitoJfluxCp0   = mito_Jflux_cp[prod_id];    // NEW — must come after you write into the array
-        trace_mitoNCXfluxCi0 = mito_NCXflux_ci[prod_id];
       }
 
       //Compute Mito Psi 
@@ -941,6 +939,11 @@ void CSubcell::pace(double v, double nai)
       double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
       mito_Jflux_cp[prod_id] = J_uni * (V_matrix_eff / vp[prod_id]) ;
       mito_NCXflux_ci[prod_id] = jNCX_m * (V_matrix_eff/vi) ;
+
+      if (id_mito == 0) {
+        trace_mitoJfluxCp0   = mito_Jflux_cp[prod_id];   
+        trace_mitoNCXfluxCi0 = mito_NCXflux_ci[prod_id];
+      }
 
       //Compute ATP Production (Producer CRUs only)
       double VATPase = update_ATP_production(mito_psi, ATP, ADP);
@@ -1102,7 +1105,7 @@ void CSubcell::pace(double v, double nai)
 
 #ifdef ___NCX
     //double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - junc_CaT + jnaca - jcabk - jslcap - Idps[crupos[id]] + Ileak * (vi / vp[id]));
-    double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - junc_CaT + jnaca - jcabk - jslcap - Idps[crupos[id]] + Ileak * (vi / vp[id])) - mito_Jflux_cp[id];
+    double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - junc_CaT + jnaca - jcabk - jslcap - Idps[crupos[id]] + Ileak * (vi / vp[id]) - mito_Jflux_cp[id]) ;
 #else
     //double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - Idps[crupos[id]]); //Original no mito 
     double dcp = get_cleft_caj_inst_buffering(cp[id])  * (Ir - Ica - Idps[crupos[id]] - mito_Jflux_cp[id]); //subtracting uni 
