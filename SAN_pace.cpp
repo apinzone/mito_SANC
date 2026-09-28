@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
 	SAN_elecphysio Cell;
 
-	int Tn = 300000.0 / dt;
+	int Tn = 120000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 

@@ -51,8 +51,7 @@ static constexpr double l_T_atp = 0.9 ; //transverse (y,z) length constant, um (
 inline std::pair<double, double>update_MCU(double ca_space, double mito_psi, double mito_ca){
 double ECa_m = RTzF * log(ca_space/mito_ca) ;
 double iMCU = (gMCU_max / (1 + (Km_uni/ca_space))) *  (mito_psi - ECa_m);
-//double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) // Original
-double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) * mito_vol_scale ; //Per CRU volume scaling
+double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) ; // Original
 return {iMCU, J_uni} ;
 }
 

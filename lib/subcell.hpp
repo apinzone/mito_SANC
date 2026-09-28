@@ -186,6 +186,7 @@ public:
   double avg_ca_mito;
   double avg_psi_mito;
   double avg_cp_prod ; 
+  double V_mito;
   double trace_ca_mito0, trace_psi_mito0, trace_cp0, trace_Juni0, trace_jncx0;
   double trace_mitoJfluxCp0, trace_mitoNCXfluxCi0;
   double trace_cai0, trace_atp0, trace_adp0 ; 

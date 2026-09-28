@@ -204,6 +204,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   vi =  1.5 * 0.5 / finemesh3;
   vs = 0.025 / finemesh3;
   vnsr = 0.025 / finemesh3;
+  V_mito = vi * (3.3 / 5.0) ;
 
 
   tausT = /*0.2**/xi * 1.42 / (finemesh * finemesh);
@@ -937,8 +938,12 @@ void CSubcell::pace(double v, double nai)
       double I_uni = z_Ca * (1/ C_mito) * J_uni ;
       double I_NCX_m = (1/C_mito) * jNCX_m ;
       double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
-      mito_Jflux_cp[prod_id] = J_uni * (V_matrix_eff / vp[prod_id]) ;
-      mito_NCXflux_ci[prod_id] = jNCX_m * (V_matrix_eff/vi) ;
+      mito_Jflux_cp[prod_id] = J_uni  * (V_mito / vp[prod_id]) ; //actual proportional volume for mito
+      mito_NCXflux_ci[prod_id] = jNCX_m * (V_mito / vi) ; //actual proportional volume for mito
+      //mito_Jflux_cp[prod_id] = po_mito * N_mcu * iMCU / (2.0*96.5 * vp[prod_id]) ;   // Update
+      //mito_NCXflux_ci[prod_id] = jNCX_m * (18.0 / vi) ;   // Update
+      //mito_Jflux_cp[prod_id] = J_uni * (V_matrix_eff / vp[prod_id]) ;
+      //mito_NCXflux_ci[prod_id] = jNCX_m * (V_matrix_eff/vi) ;
 
       if (id_mito == 0) {
         trace_mitoJfluxCp0   = mito_Jflux_cp[prod_id];   
