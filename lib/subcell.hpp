@@ -176,16 +176,17 @@ public:
   int nz_mito;
   //int nxover_nxmito = 1, nyover_nymito = 2, nzover_nzmito = 2; //Original 4:1 (CRU : Mito)
   //int nxover_nxmito = 3, nyover_nymito = 2, nzover_nzmito = 1; //6:1
-  //int nxover_nxmito = 2, nyover_nymito = 2, nzover_nzmito = 2; //8:1
+  int nxover_nxmito = 2, nyover_nymito = 2, nzover_nzmito = 2; //8:1
   //int nxover_nxmito = 3, nyover_nymito = 2, nzover_nzmito = 2; //12:1
   //int nxover_nxmito = 1, nyover_nymito = 4, nzover_nzmito = 4; //16:1
-  int nxover_nxmito = 6, nyover_nymito = 2, nzover_nzmito = 2; //24:1
+  //int nxover_nxmito = 6, nyover_nymito = 2, nzover_nzmito = 2; //24:1
 
   //for test
   double avg_ATP;
   double avg_ADP;
   bool ATP_clamped;
   double ATP_clamp;
+  double ATP_impair_scale; //Clamp boolean statement below since each prod CRU will have a value 
   double avg_ca_mito;
   double avg_psi_mito;
   double avg_cp_prod ; 
@@ -234,7 +235,7 @@ public:
   double *ca_mito, *psi_mito ; 
   double *mito_Jflux_cp, *mito_NCXflux_ci ;
   double *ATP_cyto, *ADP_free, *J_ATP_D, *ATP_prod_rate;
-
+  bool *ATP_impair ; 
 #ifdef ___DETERMINISTIC
   double *c1, *c2, *i1ca, *i1ba, *i2ca, *i2ba, *fryr1, *fryr2, *fryr3;
 #else

@@ -270,9 +270,16 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     ATP_cyto[i] = 5000; //Song et al.
     ADP_free[i] = 50; //Song et al. 
   }
+  //ATP Clamp
+
   //ATP_clamped = true ; 
   ATP_clamped = false ; 
   ATP_clamp = 5000 ; //initial test: 5000, 2500, 1000, 750, 500, 100, 50, 1 microM of ATP 
+
+  //Impair ATP Production Rate Deterministic Sca;e. Boolean array declared and defined below 
+  ATP_impair_on = false ;
+  //ATP_impair_on = true;
+  ATP_impair_scale = 0.2 ;// 0.4, 0.6, 0.8 - Added by Anthony - 29-09-2026, option to scale down ATP production rate at every other CRU, vATPase * this term; 
 
   avg_ATP = 5000 ; //initialize avg array with IC value
   avg_ADP = 50 ; //initialize avg array with IC value
@@ -302,6 +309,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   CRU_type = new int [n];
   CRU_mito_assignment = new int [n] ;
   CRU_producer_status = new int [n_mito] ; 
+  ATP_impair = new bool [n_mito] ;
 
   set_lateral_Ttubule();
   // 18:15:28, Tue, 11-December-2018, By Haibo
@@ -565,6 +573,7 @@ void CSubcell::delarray(void)
   delete [] ATP_prod_rate ;
   delete [] CRU_producer_status ;
   delete [] CRU_mito_assignment ;
+  delete [] ATP_impair ; 
   delete [] CRU_type ;
   delete [] mito_Jflux_cp ;
   delete [] mito_NCXflux_ci ;
@@ -951,7 +960,10 @@ void CSubcell::pace(double v, double nai)
       }
 
       //Compute ATP Production (Producer CRUs only)
-      double VATPase = update_ATP_production(mito_psi, ATP, ADP);
+      double VATPase = update_ATP_production(mito_psi, ATP, ADP); 
+      if(ATP_impair[id_mito]) {
+        VATPase * ATP_impair_scale ;
+      }
       if (id_mito == 0) {
           trace_prod0 = VATPase;
       }
@@ -1315,7 +1327,7 @@ void CSubcell::pace(double v, double nai)
 
   //Finish integrating ATP with clamp option
   for (int id = 0; id < n; ++ id) {
-    if (ATP_clamped == true) {
+    if (ATP_clamped) {
       ATP_cyto[id] = ATP_clamp ;
     } else {
       double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ;
@@ -1698,6 +1710,7 @@ void CSubcell::assign_producer_CRU() {
         int id_mito = mx + my * nx_mito + mz * nx_mito * ny_mito ; 
         int producer_id = mx * nxover_nxmito + my * nyover_nymito * nx + mz * nzover_nzmito * nx * ny ;
         CRU_producer_status[id_mito] = producer_id ; 
+        ATP_impair[id_mito] = ATP_impair_on && ((mx + my + mx) % 2 == 0);
         }
     }
 }
