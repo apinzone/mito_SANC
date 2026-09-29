@@ -186,6 +186,7 @@ public:
   double avg_ADP;
   bool ATP_clamped;
   double ATP_clamp;
+  bool ATP_impair_on ; //Toggle switch for ATP impair status 
   double ATP_impair_scale; //Clamp boolean statement below since each prod CRU will have a value 
   double avg_ca_mito;
   double avg_psi_mito;
@@ -271,7 +272,9 @@ public:
   int *CRU_type; //peripheral vs central 
   int *CRU_mito_assignment; //assign CRU place in mito grid 
   int *CRU_producer_status ; //assign producer CRU designation 
-
+  int *impair_status_map ; //map impaired vs. not impaired CRUs 
+  double avg_ATP_nonprod, avg_ATP_prod_ok, avg_ATP_prod_impaired;
+  
   void pace(double v, double nai);
   void pace_new(double v, double nai);
   //set Nerst parameters

@@ -121,6 +121,8 @@ int main(int argc, char *argv[])
 	sc.output_map(sc.CRU_mito_assignment, "mito_idx.vtk", 0, 0, 0);
 	sc.output_map(sc.CRU_producer_status, "prod_idx.vtk", sc.nx_mito, sc.ny_mito, sc.nz_mito);
 	sc.output_map(sc.ATP_impair, "atp_impair_map.vtk", sc.nx_mito, sc.ny_mito, sc.nz_mito) ;
+	sc.output_map(sc.impair_status_map, "producer_status_map.vtk", 0, 0, 0);
+
 	// //Temporary loop to print mito indeces
 	// for (int i = 0; i < sc.n; ++i){
 	// 	std::cout << sc.CRU_mito_assignment[i] << "\n" ;
@@ -128,12 +130,14 @@ int main(int argc, char *argv[])
 	// Testing averages across prod crus
 	std::ofstream mito_summary("mito_summary.txt");
 	std::ofstream mito0_trace("mito0_trace.txt");
+	std::ofstream atp_group_trace("atp_group_trace.txt");
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\n";
 	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\tmitoJfluxCp0\tmitoNCXfluxCi0\n";
 
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
 	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
+	
 	ikatp_inak_serca_trace << "time\tATP_ave\tp_kATP\tikATP\tinak\tIup_avg\n";
 
 	// print CRu type with producer mito
@@ -265,6 +269,10 @@ int main(int argc, char *argv[])
 						<< "\t" << sc.trace_prod0 << "\t" << sc.trace_consum0 << "\t" << sc.trace_diff0
 						<< "\t" << sc.trace_mitoJfluxCp0 << "\t" << sc.trace_mitoNCXfluxCi0 << "\n";
 			mito0_trace.flush();
+			atp_group_trace << "time\tATP_nonprod\tATP_prod_unimpaired\tATP_prod_impaired\n"; // header, once before loop
+			atp_group_trace << t << "\t" << sc.avg_ATP_nonprod << "\t" << sc.avg_ATP_prod_ok
+							<< "\t" << sc.avg_ATP_prod_impaired << "\n";
+			atp_group_trace.flush();
 			for (int id = 0; id < sc.n; ++id)
 			{
 				atp_full << sc.ATP_cyto[id];

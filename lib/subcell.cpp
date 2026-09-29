@@ -241,6 +241,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   Myosin_Mg_vec = new double [nn];
   SRB_vec       = new double [nn];
 
+  impair_status_map = new int [n] ; 
   mito_Jflux_cp = new double [n] ;
   mito_NCXflux_ci = new double [n] ;
   psi_mito = new double[n_mito] ;
@@ -572,6 +573,7 @@ void CSubcell::delarray(void)
   delete [] J_ATP_D ;
   delete [] ATP_prod_rate ;
   delete [] CRU_producer_status ;
+  delete [] impair_status_map ;
   delete [] CRU_mito_assignment ;
   delete [] ATP_impair ; 
   delete [] CRU_type ;
@@ -1340,12 +1342,21 @@ void CSubcell::pace(double v, double nai)
     }
   }
   
-  double sum_ATP_all = 0;
-  for (int id = 0; id < n; ++id){
+  double sum_ATP_all = 0, sum_ATP_nonprod = 0, sum_ATP_prod_ok = 0, sum_ATP_prod_imp = 0;
+  int n_nonprod = 0, n_prod_ok = 0, n_prod_imp = 0;
+  for (int id = 0; id < n; ++id) {
       sum_ATP_all += ATP_cyto[id];
+      if (impair_status_map[id] == 0)      { sum_ATP_nonprod += ATP_cyto[id]; n_nonprod++; }
+      else if (impair_status_map[id] == 1) { sum_ATP_prod_ok += ATP_cyto[id]; n_prod_ok++; }
+      else                                   { sum_ATP_prod_imp += ATP_cyto[id]; n_prod_imp++; }
   }
+
   avg_ATP = sum_ATP_all / n;
+  avg_ATP_nonprod = sum_ATP_nonprod / n_nonprod;
+  avg_ATP_prod_ok = (n_prod_ok > 0) ? sum_ATP_prod_ok / n_prod_ok : 0;
+  avg_ATP_prod_impaired = (n_prod_imp > 0) ? sum_ATP_prod_imp / n_prod_imp : 0;
   avg_ADP = ADP_buffer_rate * (TAN -avg_ATP);
+
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
   avg_cp_prod = sum_cp_prod / n_mito;
@@ -1711,6 +1722,7 @@ void CSubcell::assign_producer_CRU() {
         int producer_id = mx * nxover_nxmito + my * nyover_nymito * nx + mz * nzover_nzmito * nx * ny ;
         CRU_producer_status[id_mito] = producer_id ; 
         ATP_impair[id_mito] = ATP_impair_on && ((mx + my + mx) % 2 == 0);
+        impair_status_map[producer_id] = ATP_impair[id_mito] ? 2 : 1 ;
         }
     }
 }
