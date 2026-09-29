@@ -25,9 +25,10 @@ int main(int argc, char *argv[])
 	// srand(50);
 	CSubcell sc;
 	sc.finemesh = 1;
-	sc.nx = 34;
-	sc.ny = 8;
-	sc.nz = 8;
+	//sc.nx = 34; //Original
+	sc.nx = 36; //Upsize to test different CRU:Mito ratios 
+	sc.ny = 8;  //Original
+	sc.nz = 8;  //Original
 	double dt = 0.01;
 	sc.setdt(dt);
 
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
 
 	SAN_elecphysio Cell;
 
-	int Tn = 120000.0 / dt;
+	int Tn = 300000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
