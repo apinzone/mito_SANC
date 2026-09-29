@@ -436,8 +436,10 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
       xorshift(&xsx[id], &xsy[id], &xsz[id], &xsw[id]);
   }
 
-  //initial conditions
-
+//initial conditions
+for (int id = 0; id < n; ++id) {
+  impair_status_map[id] = 0;
+}
 #pragma ivdep
 #pragma vector always
   for (int id = 0; id < nn; id++)
@@ -964,7 +966,7 @@ void CSubcell::pace(double v, double nai)
       //Compute ATP Production (Producer CRUs only)
       double VATPase = update_ATP_production(mito_psi, ATP, ADP); 
       if(ATP_impair[id_mito]) {
-        VATPase * ATP_impair_scale ;
+        VATPase *= ATP_impair_scale ;
       }
       if (id_mito == 0) {
           trace_prod0 = VATPase;
@@ -1376,10 +1378,6 @@ void CSubcell::pace(double v, double nai)
               + sum_j_jslcap * 0.001 * (1e-15) * 2 * F * 1000 / Cmem; //  [pA/pF]
 }
 
-
-
-
-
 // Thu 25 Dec 2025 04:18:22 PM CST; comment:
 // THis function is no longer used and thus DEPERCATED since 2019
 // please use with care!
@@ -1438,9 +1436,6 @@ int CSubcell::bino(double num, double p, int ii)
 
   return res;
 }
-
-
-
 
 // Thu 25 Dec 2025 04:18:22 PM CST; comment:
 // THis function is no longer used and thus DEPERCATED since 2019

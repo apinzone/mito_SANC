@@ -167,7 +167,42 @@ hold off;
 set(gca, 'XTick', 1:2, 'XTickLabel', {'Producer', 'Non-producer'});
 ylabel('ATP (\muM)');
 title('Producer vs. Non-Producer ATP (Final Snapshot)');
-savefig('ATP_Bar_Final_24_1.fig');
+savefig('ATP_Bar_Final_8_1.fig');
+
+atp_vals = read_vtk_scalars('atp_cyto_final.vtk');
+status   = read_vtk_scalars('producer_status_map.vtk');
+
+groups = {'Non-producer','Producer (unimpaired)','Producer (impaired)'};
+means = zeros(1,3); stds = zeros(1,3);
+for g = 0:2
+    vals = atp_vals(status == g);
+    means(g+1) = mean(vals);
+    stds(g+1)  = std(vals);
+end
+
+figure;
+bar(means); hold on;
+errorbar(1:3, means, stds, 'k.', 'LineWidth', 1);
+set(gca, 'XTickLabel', groups);
+ylabel('ATP (\muM)');
+title('Final ATP by CRU category');
+savefig('atp_bar_by_category.fig');
+
+function vals = read_vtk_scalars(filename)
+fid = fopen(filename, 'r');
+tline = fgetl(fid);
+n_points = 0;
+while ischar(tline)
+    if startsWith(tline, 'POINT_DATA')
+        parts = strsplit(tline);
+        n_points = str2double(parts{2});
+    end
+    if startsWith(tline, 'LOOKUP_TABLE'), break; end
+    tline = fgetl(fid);
+end
+vals = fscanf(fid, '%f', n_points);
+fclose(fid);
+end
 
 %% ATP-dependent current traces (ikatp_inak_serca_trace.txt)
 % Columns: time  ATP_ave  p_kATP  ikATP  inak  Iup_avg
@@ -193,5 +228,52 @@ subplot(3,1,3);
 plot(t_trace, iup_avg, 'LineWidth', 1.2, 'Color', [0.47 0.67 0.19]);
 ylabel('I_{up,avg} (\muM/ms)');
 xlabel('Time (ms)');
-savefig('ATPdep_currents_24_1.fig.fig')
+savefig('ATPdep_currents_8_1.fig.fig')
  
+%Line graph by prod status 
+data = readmatrix('atp_group_trace.txt', 'FileType', 'text', 'Delimiter', '\t', 'NumHeaderLines', 1);
+t = data(:,1);
+
+figure;
+plot(t, data(:,2), 'DisplayName', 'Non-producer'); hold on;
+plot(t, data(:,3), 'DisplayName', 'Producer (unimpaired)');
+plot(t, data(:,4), 'DisplayName', 'Producer (impaired)');
+xlabel('Time (ms)'); ylabel('ATP (\muM)');
+legend show;
+title('ATP by CRU category over time');
+%savefig('atp_line_by_category.fig');
+
+atp_vals = read_vtk_scalars('atp_cyto_final.vtk');
+status   = read_vtk_scalars('producer_status_map.vtk');
+
+groups = {'Non-producer','Producer (unimpaired)','Producer (impaired)'};
+means = zeros(1,3); stds = zeros(1,3);
+for g = 0:2
+    vals = atp_vals(status == g);
+    means(g+1) = mean(vals);
+    stds(g+1)  = std(vals);
+end
+
+figure;
+bar(means); hold on;
+errorbar(1:3, means, stds, 'k.', 'LineWidth', 1);
+set(gca, 'XTickLabel', groups);
+ylabel('ATP (\muM)');
+title('Final ATP by CRU category');
+savefig('atp_bar_by_category.fig');
+
+function vals = read_vtk_scalars(filename)
+fid = fopen(filename, 'r');
+tline = fgetl(fid);
+n_points = 0;
+while ischar(tline)
+    if startsWith(tline, 'POINT_DATA')
+        parts = strsplit(tline);
+        n_points = str2double(parts{2});
+    end
+    if startsWith(tline, 'LOOKUP_TABLE'), break; end
+    tline = fgetl(fid);
+end
+vals = fscanf(fid, '%f', n_points);
+fclose(fid);
+end
