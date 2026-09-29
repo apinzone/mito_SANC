@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 	sc.output_map(sc.tubule_flag, "tubule_flag.vtk", 0, 0, 0);
 	sc.output_map(sc.CRU_mito_assignment, "mito_idx.vtk", 0, 0, 0);
 	sc.output_map(sc.CRU_producer_status, "prod_idx.vtk", sc.nx_mito, sc.ny_mito, sc.nz_mito);
-
+	sc.output_map(sc.ATP_impair, "atp_impair_map.vtk", sc.nx_mito, sc.ny_mito, sc.nz_mito) ;
 	// //Temporary loop to print mito indeces
 	// for (int i = 0; i < sc.n; ++i){
 	// 	std::cout << sc.CRU_mito_assignment[i] << "\n" ;
