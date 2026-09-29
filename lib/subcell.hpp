@@ -170,15 +170,16 @@ public:
   int n;//the number of CRU x*y*z
   int nn;//the number of fine mesh
   //Mito assignment grid 
+  int n_mito; 
   int nx_mito;
   int ny_mito;
   int nz_mito;
-  int nxover_nxmito = 1, nyover_nymito = 2, nzover_nzmito = 2; //Original 4:1 (CRU : Mito)
+  //int nxover_nxmito = 1, nyover_nymito = 2, nzover_nzmito = 2; //Original 4:1 (CRU : Mito)
   //int nxover_nxmito = 3, nyover_nymito = 2, nzover_nzmito = 1; //6:1
   //int nxover_nxmito = 2, nyover_nymito = 2, nzover_nzmito = 2; //8:1
   //int nxover_nxmito = 3, nyover_nymito = 2, nzover_nzmito = 2; //12:1
   //int nxover_nxmito = 1, nyover_nymito = 4, nzover_nzmito = 4; //16:1
-  //int nxover_nxmito = 6, nyover_nymito = 2, nzover_nzmito = 2; //24:1
+  int nxover_nxmito = 6, nyover_nymito = 2, nzover_nzmito = 2; //24:1
 
   //for test
   double avg_ATP;
