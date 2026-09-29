@@ -138,12 +138,7 @@ int main(int argc, char *argv[])
 	
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\n";
 	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\tmitoJfluxCp0\tmitoNCXfluxCi0\n";
-	mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_cai0 << "\t" << sc.trace_Juni0 << "\t"
-							<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0
-							<< "\t" << sc.trace_atp0 << "\t" << sc.trace_adp0
-							<< "\t" << sc.trace_prod0 << "\t" << sc.trace_consum0 << "\t" << sc.trace_diff0
-							<< "\t" << sc.trace_mitoJfluxCp0 << "\t" << sc.trace_mitoNCXfluxCi0 << "\n";
-	mito0_trace.flush();
+	atp_group_trace << "time\tATP_nonprod\tATP_prod_unimpaired\tATP_prod_impaired\n"; // header, once before loop
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
 	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
@@ -273,7 +268,12 @@ int main(int argc, char *argv[])
 						 << "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito
 						 << "\t" << sc.compute_avg_ci() << "\t" << sc.avg_cp_prod << "\n";
 			mito_summary.flush();
-			atp_group_trace << "time\tATP_nonprod\tATP_prod_unimpaired\tATP_prod_impaired\n"; // header, once before loop
+			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_cai0 << "\t" << sc.trace_Juni0 << "\t"
+							<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0
+							<< "\t" << sc.trace_atp0 << "\t" << sc.trace_adp0
+							<< "\t" << sc.trace_prod0 << "\t" << sc.trace_consum0 << "\t" << sc.trace_diff0
+							<< "\t" << sc.trace_mitoJfluxCp0 << "\t" << sc.trace_mitoNCXfluxCi0 << "\n";
+			mito0_trace.flush();
 			atp_group_trace << t << "\t" << sc.avg_ATP_nonprod << "\t" << sc.avg_ATP_prod_ok
 							<< "\t" << sc.avg_ATP_prod_impaired << "\n";
 			atp_group_trace.flush();

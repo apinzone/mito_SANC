@@ -1716,7 +1716,7 @@ void CSubcell::assign_producer_CRU() {
         int id_mito = mx + my * nx_mito + mz * nx_mito * ny_mito ; 
         int producer_id = mx * nxover_nxmito + my * nyover_nymito * nx + mz * nzover_nzmito * nx * ny ;
         CRU_producer_status[id_mito] = producer_id ; 
-        ATP_impair[id_mito] = ATP_impair_on && ((mx + my + mx) % 2 == 0);
+        ATP_impair[id_mito] = ATP_impair_on && ((mx + my + mz) % 2 == 0);
         impair_status_map[producer_id] = ATP_impair[id_mito] ? 2 : 1 ;
         }
     }
