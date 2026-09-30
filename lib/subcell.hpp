@@ -184,7 +184,7 @@ public:
   //for test
   double avg_ATP;
   double avg_ADP;
-  bool ATP_clamped;
+  bool ATP_clamp_on;
   double ATP_clamp;
   bool ATP_impair_on ; //Toggle switch for ATP impair status 
   double ATP_impair_scale; //Clamp boolean statement below since each prod CRU will have a value 

@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
 	bool Na_clamp = true;
 	
 	//Clamp ATP for whole simulation
-	sc.ATP_clamp = false ; 
-	sc.ATP_clamped = 5000 ;
+	sc.ATP_clamp_on = false ;
+	sc.ATP_clamp = 5000; 
 
 	//Consistently impair ATP production by scaling factor for every producer CRU 
 	sc.ATP_impair_on = true ;
