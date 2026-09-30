@@ -1321,7 +1321,7 @@ void CSubcell::pace(double v, double nai)
 
   //Finish integrating ATP with clamp option
   for (int id = 0; id < n; ++ id) {
-    if (ATP_clamped) {
+    if (ATP_clamp_on) {
       ATP_cyto[id] = ATP_clamp ;
     } else {
       double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ;
