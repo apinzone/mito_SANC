@@ -271,17 +271,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
     ATP_cyto[i] = 5000; //Song et al.
     ADP_free[i] = 50; //Song et al. 
   }
-  //ATP Clamp
-
-  //ATP_clamped = true ; 
-  ATP_clamped = false ; 
-  ATP_clamp = 5000 ; //initial test: 5000, 2500, 1000, 750, 500, 100, 50, 1 microM of ATP 
-
-  //Impair ATP Production Rate Deterministic Sca;e. Boolean array declared and defined below 
-  ATP_impair_on = false ;
-  //ATP_impair_on = true;
-  ATP_impair_scale = 0.2 ;// 0.4, 0.6, 0.8 - Added by Anthony - 29-09-2026, option to scale down ATP production rate at every other CRU, vATPase * this term; 
-
+ 
   avg_ATP = 5000 ; //initialize avg array with IC value
   avg_ADP = 50 ; //initialize avg array with IC value
 

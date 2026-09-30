@@ -272,7 +272,7 @@ public:
   int *CRU_type; //peripheral vs central 
   int *CRU_mito_assignment; //assign CRU place in mito grid 
   int *CRU_producer_status ; //assign producer CRU designation 
-  int *impair_status_map ; //map impaired vs. not impaired CRUs 
+  int *impair_status_map ; //map impaired vs. not impaired CRUs and non producer CRUs (3 categories)
   double avg_ATP_nonprod, avg_ATP_prod_ok, avg_ATP_prod_impaired;
   
   void pace(double v, double nai);

@@ -34,13 +34,17 @@ int main(int argc, char *argv[])
 
 	//Adjust boolean clamps
 	bool Na_clamp = true;
-	sc.ATP_impair_on = false ;
+	
+	//Clamp ATP for whole simulation
 	sc.ATP_clamp = false ; 
 	sc.ATP_clamped = 5000 ;
+
+	//Consistently impair ATP production by scaling factor for every producer CRU 
+	sc.ATP_impair_on = true ;
 	sc.ATP_impair_scale = 0.2 ; 
 
 	SAN_elecphysio Cell;
-	int Tn = 300000.0 / dt;
+	int Tn = 30000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -139,6 +143,7 @@ int main(int argc, char *argv[])
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\n";
 	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\tmitoJfluxCp0\tmitoNCXfluxCi0\n";
 	atp_group_trace << "time\tATP_nonprod\tATP_prod_unimpaired\tATP_prod_impaired\n"; // header, once before loop
+
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
 	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
