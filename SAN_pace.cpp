@@ -35,16 +35,21 @@ int main(int argc, char *argv[])
 	//Adjust boolean clamps
 	bool Na_clamp = true;
 	
+	//Mito Grid Dimensions - Ratios - 4:1 (1x2x2) ; 6:1 (3x2x1) ; 8:1 (2x2x2) ; 12:1 (3x2x2) : 16:1 (1x4x4) ; 24:1 (6x2x2)
+	sc.nxover_nxmito = 2; 
+	sc.nyover_nymito = 2 ;
+	sc.nzover_nzmito = 2 ;
+
 	//Clamp ATP for whole simulation
 	sc.ATP_clamp_on = false ;
 	sc.ATP_clamp = 5000; 
 
 	//Consistently impair ATP production by scaling factor for every producer CRU 
-	sc.ATP_impair_on = true ;
+	sc.ATP_impair_on = false ;
 	sc.ATP_impair_scale = 0.2 ; 
 
 	SAN_elecphysio Cell;
-	int Tn = 30000.0 / dt;
+	int Tn = 600000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -140,7 +145,7 @@ int main(int argc, char *argv[])
 	std::ofstream mito0_trace("mito0_trace.txt");
 	std::ofstream atp_group_trace("atp_group_trace.txt");
 	
-	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\n";
+	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\tavg_J_uni\tavg_jNCX_m\tavg_Jflux_cp\tavg_NCXflux_ci\n";
 	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\tmitoJfluxCp0\tmitoNCXfluxCi0\n";
 	atp_group_trace << "time\tATP_nonprod\tATP_prod_unimpaired\tATP_prod_impaired\n"; // header, once before loop
 
@@ -271,7 +276,9 @@ int main(int argc, char *argv[])
 
 			mito_summary << t << "\t" << sc.avg_ATP << "\t" << avg_ADP
 						 << "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito
-						 << "\t" << sc.compute_avg_ci() << "\t" << sc.avg_cp_prod << "\n";
+						 << "\t" << sc.compute_avg_ci() << "\t" << sc.avg_cp_prod
+						 << "\t" << sc.avg_J_uni << "\t" << sc.avg_jNCX_m
+						 << "\t" << sc.avg_Jflux_cp << "\t" << sc.avg_NCXflux_ci << "\n";
 			mito_summary.flush();
 			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_cai0 << "\t" << sc.trace_Juni0 << "\t"
 							<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0

@@ -852,8 +852,6 @@ void CSubcell::pace(double v, double nai)
   ICaT_tot = ICaT_scale * icat_class.compute_ICaT(v, dt);  //// 9:34:09, Wed, 29-April-2020, By Haibo
   double ICaT_per_CRU = ICaT_tot / NUM_Ttubule;
 
-
-
   #pragma omp parallel for reduction(+: total_ICaL_open) schedule(auto)
 
   for (int id = 0; id < NUM_Ttubule; id++)
@@ -901,6 +899,7 @@ void CSubcell::pace(double v, double nai)
 
   //Compute ATP and Mito initial fluxes - Moved before CRU loop so MCU and NCX fluxes can alter cp and ci concentrations 
   double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0, sum_cp_prod = 0; //TEST
+  double sum_J_uni = 0, sum_jNCX_m = 0, sum_Jflux_cp = 0, sum_NCXflux_ci = 0; //TEST
     //initialize ATP and mito flux arrays with zeros 
     for (int id = 0; id < n; ++ id) {
       ATP_prod_rate[id] = 0;
@@ -970,6 +969,10 @@ void CSubcell::pace(double v, double nai)
       sum_ca_mito += ca_mito[id_mito];
       sum_psi_mito += psi_mito[id_mito];
       sum_cp_prod += ca_cleft_prod;
+      sum_J_uni      += J_uni;
+      sum_jNCX_m     += jNCX_m;
+      sum_Jflux_cp   += mito_Jflux_cp[prod_id];
+      sum_NCXflux_ci += mito_NCXflux_ci[prod_id];
     }
 
 
@@ -1352,6 +1355,10 @@ void CSubcell::pace(double v, double nai)
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
   avg_cp_prod = sum_cp_prod / n_mito;
+  avg_J_uni      = sum_J_uni / n_mito;
+  avg_jNCX_m     = sum_jNCX_m / n_mito;
+  avg_Jflux_cp   = sum_Jflux_cp / n_mito;
+  avg_NCXflux_ci = sum_NCXflux_ci / n_mito;
   irave = sumir / n;
   iupave = sumjup / nn;
 

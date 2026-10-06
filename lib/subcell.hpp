@@ -174,9 +174,13 @@ public:
   int nx_mito;
   int ny_mito;
   int nz_mito;
+  int nxover_nxmito ;
+  int nyover_nymito ;
+  int nzover_nzmito ; 
+  //1 mito test
   //int nxover_nxmito = 1, nyover_nymito = 2, nzover_nzmito = 2; //Original 4:1 (CRU : Mito)
   //int nxover_nxmito = 3, nyover_nymito = 2, nzover_nzmito = 1; //6:1
-  int nxover_nxmito = 2, nyover_nymito = 2, nzover_nzmito = 2; //8:1
+  //int nxover_nxmito = 2, nyover_nymito = 2, nzover_nzmito = 2; //8:1
   //int nxover_nxmito = 3, nyover_nymito = 2, nzover_nzmito = 2; //12:1
   //int nxover_nxmito = 1, nyover_nymito = 4, nzover_nzmito = 4; //16:1
   //int nxover_nxmito = 6, nyover_nymito = 2, nzover_nzmito = 2; //24:1
@@ -191,6 +195,8 @@ public:
   double avg_ca_mito;
   double avg_psi_mito;
   double avg_cp_prod ; 
+  double avg_J_uni, avg_jNCX_m ;
+  double avg_Jflux_cp, avg_NCXflux_ci; 
   double V_mito;
   double trace_ca_mito0, trace_psi_mito0, trace_cp0, trace_Juni0, trace_jncx0;
   double trace_mitoJfluxCp0, trace_mitoNCXfluxCi0;

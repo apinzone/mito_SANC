@@ -6,7 +6,9 @@
 
 //Mito formulas
 //Uniporter - Song supplement 3.1 
-static constexpr double Bm_mito = 0.01 ; //Assume MPTP closed
+//static constexpr double Bm_mito = 0.01 ; //Assume MPTP closed - ORIGINAL
+//static constexpr double Bm_mito = 0.03 ; //Try different value 
+static constexpr double Bm_mito = 0.05 ; //Tuning 
 static constexpr double RTzF = (8.315 * 308) / (96.5 * 2); //z for Ca of +2  
 static constexpr double po_mito = 0.9 ; //MCU open probability 
 static constexpr int N_mcu = 200 ; //Number of MCUs per mito 
@@ -16,7 +18,7 @@ static constexpr double zFvmyo = 2.0 * 96.5 * 18 ; //z of 2 for Ca, 18 microl fo
 static constexpr double mito_vol_scale = 1e5 ; //Per CRUs mito volume scaling (rather than whole cell)
 static constexpr double V_matrix_eff = 18.0 / mito_vol_scale; //Volume scaling 
 //Mito NCX - Song supplement 3.2 
-static constexpr double vNCX_max = 0.0035 ; //microM * ms^-1
+static constexpr double vNCX_max = 0.0035 * 30; //microM * ms^-1
 static constexpr double mito_v0 = 91 ; //mV
 static constexpr double kNa_mNCX = 9.4 ; //mM  
 static constexpr double n_mNCX = 3 ; //NCX cooperativity for Nai
@@ -39,6 +41,7 @@ static constexpr double k_ATPase = 0.16 ;
 static constexpr double kd_deltam = 150;
 static constexpr double kd_psn = 0.02 ; 
 static constexpr double kd_psp = 0.5 ; 
+//static constexpr double DATP = 0.00001 ; //Test
 static constexpr double DATP = 0.01; //Value that yield most heterogeneity (~13 uM swing at 24:1 CRU:mito ratio)
 //static constexpr double DATP = 0.05; 
 //static constexpr double DATP = 0.1; 
@@ -50,7 +53,8 @@ static constexpr double l_T_atp = 0.9 ; //transverse (y,z) length constant, um (
 //Compute MCU Flux 
 inline std::pair<double, double>update_MCU(double ca_space, double mito_psi, double mito_ca){
 double ECa_m = RTzF * log(ca_space/mito_ca) ;
-double iMCU = (gMCU_max / (1 + (Km_uni/ca_space))) *  (mito_psi - ECa_m);
+//double iMCU = (gMCU_max / (1 + (Km_uni/ca_space))) *  (mito_psi - ECa_m);
+double iMCU = (gMCU_max / (1 + (Km_uni/ca_space))) *  (mito_psi + ECa_m); //matching Song's code, sign flip for psi + ECa_m intead of psi - ECa_m
 double J_uni = po_mito * N_mcu * (iMCU/zFvmyo) ; // Original
 return {iMCU, J_uni} ;
 }
