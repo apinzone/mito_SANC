@@ -34,14 +34,17 @@ int main(int argc, char *argv[])
 
 	//Adjust boolean clamps
 	bool Na_clamp = true;
-	
+	//AP clamp with pregenerated waveforms 
+	bool AP_clamp_on = false;  
+	double AP_clamp_CL = 190.0 ; // 330 ; //190 or 300 ms CL 
+
 	//Mito Grid Dimensions - Ratios - 4:1 (1x2x2) ; 6:1 (3x2x1) ; 8:1 (2x2x2) ; 12:1 (3x2x2) : 16:1 (1x4x4) ; 24:1 (6x2x2)
-	sc.nxover_nxmito = 2; 
+	sc.nxover_nxmito = 1; 
 	sc.nyover_nymito = 2 ;
 	sc.nzover_nzmito = 2 ;
 
 	//Clamp ATP for whole simulation
-	sc.ATP_clamp_on = false ;
+	sc.ATP_clamp_on = false ; 
 	sc.ATP_clamp = 5000; 
 
 	//Consistently impair ATP production by scaling factor for every producer CRU 
@@ -49,7 +52,7 @@ int main(int argc, char *argv[])
 	sc.ATP_impair_scale = 0.2 ; 
 
 	SAN_elecphysio Cell;
-	int Tn = 600000.0 / dt;
+	int Tn = 30000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80;
 
@@ -152,7 +155,7 @@ int main(int argc, char *argv[])
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
 	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
-	
+	std::ofstream vm_hr("vm_hr.txt");
 	ikatp_inak_serca_trace << "time\tATP_ave\tp_kATP\tikATP\tinak\tIup_avg\n";
 
 	// print CRu type with producer mito
@@ -196,19 +199,46 @@ int main(int argc, char *argv[])
 	producer_mask.close();
 
 	delete[] producer_highlight;
-	// to simulate ion current blockade
-	// sc.ncx_scale = 0.4;
-	// sc.ICaT_scale = 0.4;
-	// sc.ICaL_scale = 0.4;
-	// Cell.If_scale = 0.4; // If parameters in cell instead of sc.
 
+	// to simulate ion current blockade
+	//sc.ncx_scale = 0.4;
+	//sc.ICaT_scale = 0.4;
+	//sc.ICaL_scale = 0.4;
+	//Cell.If_scale = 0.4; // If parameters in cell instead of sc.
+	//Cell.ist_scale = 0.4 ; //ist pars in cell as well 
+
+	//load appropriate AP clamp waveform if defined 
+	std::vector<double> AP_set;
+	if (AP_clamp_on) {
+		std::string ap_file = "pool_AP/AP_" + std::to_string((int)AP_clamp_CL) + ".txt";
+		std::ifstream inAP(ap_file);
+		double tmp;
+		while (inAP >> tmp) AP_set.push_back(tmp);		
+
+		if (AP_set.empty()) {
+			std::cerr << "AP file not found or empty: " << ap_file << std::endl;
+			return 1;
+		}
+		if (AP_set.size() != (size_t)std::lround(AP_clamp_CL / dt)) {
+			std::cerr << "AP file length " << AP_set.size()
+			<< " != CL/dt " << std::lround(AP_clamp_CL / dt) << std::endl;
+			return 1;
+		}
+	}
+
+	//Integration loop
 	for (int tn = 0; tn < Tn; tn++)
 	{
 
 		// operator splitting pt 1
 
 		double t = tn * dt;
-
+		//AP clamp conditions
+		double v_clamp = 0.0 ;
+		if(AP_clamp_on) {
+			v_clamp = AP_set[tn % AP_set.size()] ;
+			Cell.y[36] = v_clamp ;
+		}
 		// note that Cm = 0.025 nF from SAN_elecphysio.hpp // 16:21:14, Mon, 04-May-2020, By Haibo
 		Cell.update_Na_and_K_currents(t, sc.avg_ATP, sc.avg_ADP);
 
@@ -230,8 +260,10 @@ int main(int argc, char *argv[])
 		Cell.update_state_FE(dt / 2.0);
 		/*if (t > 22900 and t < 23900)
 			Cell.y[36] = -65;*/
+		if(AP_clamp_on) Cell.y[36] = v_clamp; //undo Vm integration 
 		v = Cell.y[36];
-
+		if (!AP_clamp_on && t >= Tn * dt - 2000.0 && tn % 10 == 0)
+			vm_hr << t << "\t" << v << "\n";
 		// i_CaT is implemented in the pace function,
 		// solved with a single dt here.
 		if (Na_clamp)
@@ -264,6 +296,8 @@ int main(int argc, char *argv[])
 		}
 		Cell.com_total_current(t);
 		Cell.update_state_FE(dt / 2.0);
+		if (AP_clamp_on) Cell.y[36] = v_clamp;   // reset 
+		v = Cell.y[36];
 
 		/*if (t > 22900 and t < 23900)
 			Cell.y[36] = -65;*/

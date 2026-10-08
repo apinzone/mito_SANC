@@ -1,0 +1,355 @@
+%% plot_mito_summary.m
+% Quick sanity-check plot of mito_summary.txt
+% Columns: time  avg_ATP  avg_ADP  avg_ca_mito  avg_psi_mito  avg_cai  avg_cp_prod
+clear all; close all;
+run_label = '4_1_control';  % Label for graphs + biomarkers file
+data = readtable('mito_summary.txt', 'FileType', 'text', 'Delimiter', '\t');
+
+t         = data.time;
+atp       = data.avg_ATP;
+adp       = data.avg_ADP;
+ca_mito   = data.avg_ca_mito;
+psi_mito  = data.avg_psi_mito;
+avg_cai   = data.avg_cai;       % whole-cell average cytosolic Ca
+avg_cp    = data.avg_cp_prod;   % cleft Ca, averaged over producer CRUs only (mito Ca input)
+
+%% Whole-cell Vm and Cai (ci.txt)
+% ci.txt columns (space-delimited, no header): time  vm  cai  ...
+ci_data = readtable('ci.txt', 'FileType', 'text', 'Delimiter', ' ', 'ReadVariableNames', false);
+t_ci   = ci_data{:, 1};
+vm_ci  = ci_data{:, 2};
+cai_ci = ci_data{:, 3};
+
+figure('Name', 'Whole-Cell Vm and Cai', 'Position', [100 1100 900 500], 'Color', 'w');
+subplot(2,1,1);
+plot(t_ci, vm_ci, 'k', 'LineWidth', 1.2);
+ylabel('V_m (mV)');
+title('Whole-Cell Membrane Voltage and Ca_i');
+
+subplot(2,1,2);
+plot(t_ci, cai_ci, 'LineWidth', 1.2, 'Color', [0.00 0.45 0.74]);
+ylabel('Ca_i (\muM)');
+xlabel('Time (ms)');
+savefig(['whole_cell_vm_cai_', run_label, '.fig'])
+
+figure('Name', 'Whole-Cell Averages Ca and Mito', 'Position', [100 100 900 950]);
+
+subplot(4,1,1);
+plot(t, avg_cai, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
+ylabel('avg Ca_i (\muM)');
+
+subplot(4,1,2);
+plot(t, avg_cp, 'LineWidth', 1.5, 'Color', [0.93 0.69 0.13]);
+ylabel('avg Ca_{cleft,prod} (\muM)');
+
+
+subplot(4,1,3);
+plot(t, ca_mito, 'LineWidth', 1.5, 'Color', [0.47 0.67 0.19]);
+ylabel('avg Ca_{mito} (\muM)');
+
+
+subplot(4,1,4);
+plot(t, psi_mito, 'LineWidth', 1.5, 'Color', [0.49 0.18 0.56]);
+ylabel('avg \Psi_{mito} (mV)');
+xlabel('Time (ms)');
+savefig(['whole_cell_avg_psi_ca_', run_label, '.fig'])
+
+figure('Name', 'Whole-Cell ATP/ADP', 'Position', [100 100 900 950]);
+yyaxis left;
+plot(t, atp, 'LineWidth', 1.5);
+ylabel('ATP (\muM)');
+yyaxis right;
+plot(t, adp, 'LineWidth', 1.5);
+ylabel('ADP (\muM)');
+savefig(['whole_cell_avg_ATP_ATPD', run_label, '.fig'])
+
+% %% Single-mito trace (mito0_trace.txt)
+% % Columns: time  cp0  cai0  J_uni0  jNCX_m0  ca_mito0  psi_mito0  atp0  adp0  prod0  consum0  diff0
+% 
+% data0 = readtable('mito0_trace.txt', 'FileType', 'text', 'Delimiter', '\t');
+% 
+% t0        = data0.time;
+% cp0       = data0.cp0;
+% cai0      = data0.cai0;
+% J_uni0    = data0.J_uni0;
+% jNCX_m0   = data0.jNCX_m0;
+% ca_mito0  = data0.ca_mito0;
+% psi_mito0 = data0.psi_mito0;
+% atp0      = data0.atp0;
+% adp0      = data0.adp0;
+% prod0     = data0.prod0;    % local ATP production rate (VATPase) at mito0's producer CRU
+% consum0   = data0.consum0;  % local ATP consumption rate (VATP_consum) at that same CRU
+% diff0     = data0.diff0;    % net diffusive term (J_ATP_D) at that same CRU
+% 
+% figure('Name', 'Prod Trace', 'Position', [1050 100 900 1050]);
+% subplot(4,1,1);
+% plot(t0, cp0, 'LineWidth', 1.5);
+% ylabel('cp_0 (\muM)');
+% title('Mito 0 — Driving Ca, Fluxes, and ATP/ADP Over Time');
+% 
+% subplot(4,1,2);
+% plot(t0, cai0, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
+% ylabel('cai_0 (\muM)');
+% 
+% % subplot(7,1,3);
+% % plot(t0, J_uni0, 'LineWidth', 1.5, 'Color', [0.00 0.45 0.74]);
+% % hold on;
+% % plot(t0, jNCX_m0, 'LineWidth', 1.5, 'Color', [0.85 0.33 0.10]);
+% % hold off;
+% % ylabel('J_{uni,0} / J_{NCX,0}');
+% % legend({'J_{uni,0}', 'J_{NCX,0}'}, 'Location', 'best');
+% 
+% subplot(4,1,3);
+% plot(t0, psi_mito0, 'LineWidth', 1.5, 'Color', [0.49 0.18 0.56]);
+% ylabel('\Psi_{mito,0} (mV)');
+% 
+% subplot(4,1,4);
+% plot(t0, ca_mito0, 'LineWidth', 1.5, 'Color', [0.47 0.67 0.19]);
+% ylabel('Ca_{mito,0} (\muM)');
+% %savefig(['Prod_only_psi_ca_ATPD_', run_label, '.fig'])
+% 
+% figure('Name', 'Mito 0 Trace ATP/ADP', 'Position', [1050 100 900 1050]);
+% yyaxis left;
+% plot(t0, atp0, 'LineWidth', 1.5);
+% ylabel('ATP_0 (\muM)');
+% yyaxis right;
+% plot(t0, adp0, 'LineWidth', 1.5);
+% ylabel('ADP_0 (\muM)');
+
+% % %savefig(['Prod_only_ATP_ATPD_', run_label, '.fig'])
+% % Read scalar field from VTK (handles line-wrapped ASCII data automatically)
+% fid = fopen('atp_cyto_final.vtk', 'r');
+% n_points = 0;
+% tline = fgetl(fid);
+% while ischar(tline)
+%     if startsWith(tline, 'POINT_DATA')
+%         parts = strsplit(tline);
+%         n_points = str2double(parts{2});
+%     end
+%     if startsWith(tline, 'LOOKUP_TABLE')
+%         break;
+%     end
+%     tline = fgetl(fid);
+% end
+% atp_vals = fscanf(fid, '%f', n_points);
+% fclose(fid);
+% 
+% % Producer mask must be in the same flattened CRU order as the VTK point data
+% mask = readmatrix('producer_mask.txt', 'FileType', 'text', 'Delimiter', '\t');
+% mask = mask(:);
+% 
+% prod_cols    = find(mask == 1);
+% nonprod_cols = find(mask == 0);
+% 
+% atp_prod    = atp_vals(prod_cols);
+% atp_nonprod = atp_vals(nonprod_cols);
+% 
+% atp_prod_mean    = mean(atp_prod);
+% atp_prod_std     = std(atp_prod);
+% atp_nonprod_mean = mean(atp_nonprod);
+% atp_nonprod_std  = std(atp_nonprod);
+% 
+% fprintf('Producer ATP:     mean = %.4f uM, std = %.4f uM (n=%d)\n', atp_prod_mean, atp_prod_std, numel(atp_prod));
+% fprintf('Non-producer ATP: mean = %.4f uM, std = %.4f uM (n=%d)\n', atp_nonprod_mean, atp_nonprod_std, numel(atp_nonprod));
+% fprintf('Difference (Producer - Non-producer): %.4f uM\n', atp_prod_mean - atp_nonprod_mean);
+% 
+% means = [atp_prod_mean, atp_nonprod_mean];
+% stds  = [atp_prod_std, atp_nonprod_std];
+% 
+% figure('Name', 'Producer vs Non-Producer ATP', 'Position', [1050 1300 500 400], 'Color', 'w');
+% b = bar(means, 'FaceColor', 'flat');
+% b.CData(1,:) = [0.00 0.45 0.74];
+% b.CData(2,:) = [0.85 0.33 0.10];
+% hold on;
+% errorbar(1:2, means, stds, 'k', 'LineStyle', 'none', 'LineWidth', 1.2);
+% hold off;
+% 
+% set(gca, 'XTick', 1:2, 'XTickLabel', {'Producer', 'Non-producer'});
+% ylabel('ATP (\muM)');
+% title('Producer vs. Non-Producer ATP (Final Snapshot)');
+% %savefig(['ATP_Bar_Final_', run_label, '.fig']);
+% 
+% atp_vals = read_vtk_scalars('atp_cyto_final.vtk');
+% status   = read_vtk_scalars('producer_status_map.vtk');
+% groups = {'Non-producer','Producer (unimpaired)','Producer (impaired)'};
+% means = zeros(1,3); stds = zeros(1,3);
+% for g = 0:2
+%     vals = atp_vals(status == g);
+%     means(g+1) = mean(vals);
+%     stds(g+1)  = std(vals);
+% end
+% 
+% figure;
+% bar(means); hold on;
+% errorbar(1:3, means, stds, 'k.', 'LineWidth', 1);
+% set(gca, 'XTickLabel', groups);
+% ylabel('ATP (\muM)');
+% title('Final ATP by CRU category');
+% %savefig(['atp_bar_by_category', run_label, '.fig']);
+
+
+
+%% ATP-dependent current traces (ikatp_inak_serca_trace.txt)
+% Columns: time  ATP_ave  p_kATP  ikATP  inak  Iup_avg
+trace_data = readtable('ikatp_inak_serca_trace.txt', 'FileType', 'text', 'Delimiter', '\t');
+t_trace  = trace_data.time;
+p_katp   = trace_data.p_kATP;
+ikatp    = trace_data.ikATP;
+inak_tr  = trace_data.inak;
+iup_avg  = trace_data.Iup_avg;
+
+figure('Name', 'ATP-Dependent Currents', 'Position', [100 100 900 900], 'Color', 'w');
+subplot(3,1,1);
+plot(t_trace, ikatp, 'LineWidth', 1.2, 'Color', [0.85 0.33 0.10]);
+ylabel('I_{KATP} (pA)');
+title('ATP-Dependent Current Traces');
+
+subplot(3,1,2);
+plot(t_trace, inak_tr, 'LineWidth', 1.2, 'Color', [0.00 0.45 0.74]);
+ylabel('I_{NaK} (pA)');
+
+subplot(3,1,3);
+plot(t_trace, iup_avg, 'LineWidth', 1.2, 'Color', [0.47 0.67 0.19]);
+ylabel('I_{up,avg} (\muM/ms)');
+xlabel('Time (ms)');
+savefig(['ATPdep_currents_', run_label, '.fig'])
+ 
+% %Line graph by prod status 
+% data = readmatrix('atp_group_trace.txt', 'FileType', 'text', 'Delimiter', '\t', 'NumHeaderLines', 1);
+% t = data(:,1);
+% figure;
+% plot(t, data(:,2), 'DisplayName', 'Non-producer'); hold on;
+% plot(t, data(:,3), 'DisplayName', 'Producer (unimpaired)');
+% plot(t, data(:,4), 'DisplayName', 'Producer (impaired)');
+% xlabel('Time (ms)'); ylabel('ATP (\muM)');
+% legend show;
+% title('ATP by CRU category over time');
+% %savefig(['atp_line_by_category', run_label, '.fig']);
+% 
+% %Bar graph with 3 prod. categories 
+% atp_vals = read_vtk_scalars('atp_cyto_final.vtk');
+% status   = read_vtk_scalars('producer_status_map.vtk');
+% 
+% groups = {'Non-producer','Producer (unimpaired)','Producer (impaired)'};
+% means = zeros(1,3); stds = zeros(1,3);
+% for g = 0:2
+%     vals = atp_vals(status == g);
+%     means(g+1) = mean(vals);
+%     stds(g+1)  = std(vals);
+% end
+% 
+% figure;
+% bar(means); hold on;
+% errorbar(1:3, means, stds, 'k.', 'LineWidth', 1);
+% set(gca, 'XTickLabel', groups);
+% ylabel('ATP (\muM)');
+% title('Final ATP by CRU category');
+% savefig(['atp_bar_by_3category', run_label, '.fig']);
+% 
+% %Strip Plot of Final ATP
+% status   = read_vtk_scalars('producer_status_map.vtk');
+% groups = categorical(status, [0 1 2], {'Non-producer','Producer (unimpaired)','Producer (impaired)'});
+% figure;
+% swarmchart(groups, atp_vals, 15, 'filled');
+% ylabel('ATP (\muM)');
+% title('ATP distribution by CRU category (final snapshot)');
+% hold on;
+% cats = categories(groups);
+% for i = 1:numel(cats)
+%     m = mean(atp_vals(groups == cats{i}));
+%     plot([i-0.25 i+0.25], [m m], 'k-', 'LineWidth', 2);
+% end
+% %savefig(['atp_strip_by_3category', run_label, '.fig']);
+
+%% Biomarkers -> CSV
+results = biomarkers('ci.txt', 'ikatp_inak_serca_trace.txt', run_label, 20000, false);
+
+row = struct();
+row.label = {results.label};
+
+row.BCL_vm_mean = mean(results.BCL_vm, 'omitnan');
+row.BCL_vm_sd   = std(results.BCL_vm, 'omitnan');
+row.CaT_CL_mean = mean(results.CaT_CL, 'omitnan');
+row.CaT_CL_sd   = std(results.CaT_CL, 'omitnan');
+
+fn = fieldnames(results.cat_markers);
+for i = 1:numel(fn)
+    vals = results.cat_markers.(fn{i});
+    row.([fn{i} '_mean']) = mean(vals, 'omitnan');
+    row.([fn{i} '_sd'])   = std(vals, 'omitnan');
+end
+
+fn_c = fieldnames(results.currents);
+for i = 1:numel(fn_c)
+    if strcmp(fn_c{i}, 'time'), continue; end  % raw time vector, not a biomarker
+    vals = results.currents.(fn_c{i});
+    row.([fn_c{i} '_mean']) = mean(vals, 'omitnan');
+    row.([fn_c{i} '_sd'])   = std(vals, 'omitnan');
+end
+
+row.ATP_ave_max = max(results.currents.ATP_ave, [], 'omitnan');
+row.ATP_ave_min = min(results.currents.ATP_ave, [], 'omitnan');
+cl = cl_upstroke(t_ci, vm_ci, 20000);        
+row.CL_thr_median  = median(cl.CL_thr,  'omitnan');
+row.CL_dvdt_median = median(cl.CL_dvdt, 'omitnan');
+row.CL_dvdt_sd     = std(cl.CL_dvdt,    'omitnan');
+
+T = struct2table(row);
+
+writetable(T, sprintf('biomarkers_%s.csv', run_label));
+fprintf('Saved biomarker summary: biomarkers_%s.csv\n', run_label);
+
+%% Mito Ca shuttle vs SERCA (last window, per beat)
+% Volumes from subcell.cpp (finemesh = 1), in um^3 (= fL)
+vp     = 0.00126 * 2;        % cleft volume per CRU (vp_ave, r = 0)
+vi     = 1.5 * 0.5;          % cytosolic volume per CRU
+V_mito = vi * (3.3/5.0);     % mito volume
+mito_per_CRU = 1/4;          % 8:1 run -> 1/8 ; 4:1 run -> 1/4
+
+win_ms = 20000;              % analyse last 20 s
+w  = t       >= t(end)       - win_ms;
+wt = t_trace >= t_trace(end) - win_ms;
+
+BCL = row_BCL_guess();       % replaced below if biomarkers ran
+if exist('results','var') && isfield(results,'BCL_vm')
+    BCL = mean(results.BCL_vm,'omitnan');
+end
+
+% Mean fluxes over the window (uM/ms in each compartment's own volume)
+Jflux_cp   = mean(data.avg_Jflux_cp(w));     % cleft debit per producer CRU
+NCXflux_ci = mean(data.avg_NCXflux_ci(w));   % cytosolic credit per producer CRU
+Iup        = mean(iup_avg(wt));              % SERCA uptake per CRU
+
+% Amount moved per beat, in uM*um^3 (= zeptomol; 1 zmol ~ 602 ions)
+mcu_per_mito  = Jflux_cp   * vp * BCL;       % Ca taken from cleft per mito per beat
+nclx_per_mito = NCXflux_ci * vi * BCL;       % Ca returned to cytosol per mito per beat
+serca_per_CRU = Iup        * vi * BCL;       % Ca pumped into SR per CRU per beat
+
+% Whole-cell ratio: (MCU per mito x mitos per CRU) / SERCA per CRU
+shuttle_frac = (mcu_per_mito * mito_per_CRU) / serca_per_CRU;
+
+fprintf('\n--- Mito Ca shuttle (last %.0f s, BCL %.1f ms) ---\n', win_ms/1000, BCL);
+fprintf('MCU uptake per mito per beat  : %.3f zmol (~%.0f Ca ions)\n', mcu_per_mito,  mcu_per_mito*602);
+fprintf('NCLX return per mito per beat : %.3f zmol (~%.0f Ca ions)\n', nclx_per_mito, nclx_per_mito*602);
+fprintf('SERCA uptake per CRU per beat : %.3f zmol (~%.0f Ca ions)\n', serca_per_CRU, serca_per_CRU*602);
+fprintf('Mito shuttle / SERCA (whole cell): %.2f %%\n', 100*shuttle_frac);
+
+function b = row_BCL_guess()
+b = 107;   % fallback cycle length (ms) if biomarkers() has not run
+end
+
+function vals = read_vtk_scalars(filename)
+fid = fopen(filename, 'r');
+tline = fgetl(fid);
+n_points = 0;
+while ischar(tline)
+    if startsWith(tline, 'POINT_DATA')
+        parts = strsplit(tline);
+        n_points = str2double(parts{2});
+    end
+    if startsWith(tline, 'LOOKUP_TABLE'), break; end
+    tline = fgetl(fid);
+end
+vals = fscanf(fid, '%f', n_points);
+fclose(fid);
+end

@@ -19,6 +19,7 @@ SAN_elecphysio::SAN_elecphysio() {
 	y[13] = 0.3689412442;
 	y[14] = 0.0206150195;
 	y[15] = 0.4119481339;
+	y[15] = 0.4119481339;
 	y[16] = 0.2219871208;
 	y[17] = 0.0196667018;
 	y[18] = 0.0108493621;
@@ -204,7 +205,7 @@ int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave, double AD
 	double tauqi = 1.0 / (alphaqi + betaqi);
 	double dst_dot = (qa - dst) / tauqa;
 	double fst_dot = (qi - fst) / tauqi;
-	ist = par_SA[1 - 1] * gst * dst * fst * (v - eist);
+	ist = ist_scale * par_SA[1 - 1] * gst * dst * fst * (v - eist);
 
 	//// INa - Na channel isoforms Nav1.1/Nav1.5 currents ***********************
 	double fna = (9.52e-02 * exp(-6.3e-2 * (v + 34.4)) / (1 + 1.66 * exp(-0.225 * (v + 63.7)))) + 8.69e-2;

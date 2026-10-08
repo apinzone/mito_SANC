@@ -248,6 +248,7 @@ public:
 
 
 	double If_scale = 1.0;
+	double ist_scale = 1.0 ; 
 
 };
 

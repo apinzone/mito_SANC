@@ -189,6 +189,10 @@ public:
   double avg_ATP;
   double avg_ADP;
   bool ATP_clamp_on;
+  bool Ru360_on;
+  bool CGP_on;
+  double Ru360_scale;
+  double CGP_scale;
   double ATP_clamp;
   bool ATP_impair_on ; //Toggle switch for ATP impair status 
   double ATP_impair_scale; //Clamp boolean statement below since each prod CRU will have a value 
