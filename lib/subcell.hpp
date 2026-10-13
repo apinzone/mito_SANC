@@ -201,6 +201,8 @@ public:
   double avg_cp_prod ; 
   double avg_J_uni, avg_jNCX_m ;
   double avg_Jflux_cp, avg_NCXflux_ci; 
+  double avg_ca_mito_type[3], avg_psi_mito_type[3], avg_cp_type[3], avg_Juni_type[3]; //test to write by CRU type
+  int    n_mito_type[3];
   double V_mito;
   double trace_ca_mito0, trace_psi_mito0, trace_cp0, trace_Juni0, trace_jncx0;
   double trace_mitoJfluxCp0, trace_mitoNCXfluxCi0;

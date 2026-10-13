@@ -9,7 +9,6 @@ using namespace std;
 #include "SAN_elecphysio.hpp"
 #include "input_output.h"
 // #include <direct.h>
-
 // #define CAV3_INCX
 // #define CAV3_ICaT
 // #define CAV3_ICaL
@@ -25,8 +24,8 @@ int main(int argc, char *argv[])
 	// srand(50);
 	CSubcell sc;
 	sc.finemesh = 1;
-	//sc.nx = 34; //Original
-	sc.nx = 36; //Upsize to test different CRU:Mito ratios 
+	sc.nx = 34; //Original
+	//sc.nx = 36; //Upsize to test different CRU:Mito ratios (Necessary if testing 6,8,12,16, or 24:1)
 	sc.ny = 8;  //Original
 	sc.nz = 8;  //Original
 	double dt = 0.01;
@@ -35,8 +34,9 @@ int main(int argc, char *argv[])
 	//Adjust boolean clamps
 	bool Na_clamp = true;
 	//AP clamp with pregenerated waveforms 
-	bool AP_clamp_on = false;  
-	double AP_clamp_CL = 190.0 ; // 330 ; //190 or 300 ms CL 
+	bool AP_clamp_on = true;  
+	double AP_clamp_CL = 5000.0 ;  //106 (validation), 135, 150, 190, 235, 250, 285, 350 ;
+	//Must  extend simulation time based on CL for AP clamp to match number of beats for a 100 beat simulation with BCL 
 
 	//Mito Grid Dimensions - Ratios - 4:1 (1x2x2) ; 6:1 (3x2x1) ; 8:1 (2x2x2) ; 12:1 (3x2x2) : 16:1 (1x4x4) ; 24:1 (6x2x2)
 	sc.nxover_nxmito = 1; 
@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
 	sc.ATP_impair_scale = 0.2 ; 
 
 	SAN_elecphysio Cell;
-	int Tn = 30000.0 / dt;
+	int Tn = 60000.0 / dt;
 	ofstream os("ci.txt");
-	double v = -80;
+	double v = -80; 
 
 #ifdef CAV3_INCX
 	if (argc == 3)
@@ -147,15 +147,16 @@ int main(int argc, char *argv[])
 	std::ofstream mito_summary("mito_summary.txt");
 	std::ofstream mito0_trace("mito0_trace.txt");
 	std::ofstream atp_group_trace("atp_group_trace.txt");
-	
+	std::ofstream mito_type("mito_by_type.txt");
+
 	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\tavg_J_uni\tavg_jNCX_m\tavg_Jflux_cp\tavg_NCXflux_ci\n";
 	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\tmitoJfluxCp0\tmitoNCXfluxCi0\n";
 	atp_group_trace << "time\tATP_nonprod\tATP_prod_unimpaired\tATP_prod_impaired\n"; // header, once before loop
-
+	mito_type << "time\tca_mito_0\tca_mito_1\tca_mito_2\tpsi_0\tpsi_1\tpsi_2\tcp_0\tcp_1\tcp_2\tJuni_0\tJuni_1\tJuni_2\n" ;
 	std::ofstream atp_linescan("atp_linescan.txt");
 	std::ofstream atp_full("atp_full_grid.txt");
 	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
-	std::ofstream vm_hr("vm_hr.txt");
+	//std::ofstream vm_hr("vm_hr.txt");
 	ikatp_inak_serca_trace << "time\tATP_ave\tp_kATP\tikATP\tinak\tIup_avg\n";
 
 	// print CRu type with producer mito
@@ -201,7 +202,7 @@ int main(int argc, char *argv[])
 	delete[] producer_highlight;
 
 	// to simulate ion current blockade
-	//sc.ncx_scale = 0.4;
+	//sc.ncx_scale = 0.85;
 	//sc.ICaT_scale = 0.4;
 	//sc.ICaL_scale = 0.4;
 	//Cell.If_scale = 0.4; // If parameters in cell instead of sc.
@@ -262,8 +263,8 @@ int main(int argc, char *argv[])
 			Cell.y[36] = -65;*/
 		if(AP_clamp_on) Cell.y[36] = v_clamp; //undo Vm integration 
 		v = Cell.y[36];
-		if (!AP_clamp_on && t >= Tn * dt - 2000.0 && tn % 10 == 0)
-			vm_hr << t << "\t" << v << "\n";
+		//if (!AP_clamp_on && t >= Tn * dt - 2000.0 && tn % 10 == 0)
+			//vm_hr << t << "\t" << v << "\n";
 		// i_CaT is implemented in the pace function,
 		// solved with a single dt here.
 		if (Na_clamp)
@@ -303,6 +304,7 @@ int main(int argc, char *argv[])
 			Cell.y[36] = -65;*/
 
 		if (tn % 100 == 0)
+		//if (tn % 1000 == 0) //for timestep = 0.001
 		{
 			cout << t << "\t" << sc.ci[0] << "\t" << sc.cp[0] << endl;
 			// os << t << "\t" << v << "\t" << sc.ica_stan << "\t" << sc.num_open_ICaL << "\t" << Cell.ical12 / 0.025 << "\t" << Cell.ical13 / 0.025 << "\t" ;
@@ -323,6 +325,13 @@ int main(int argc, char *argv[])
 			atp_group_trace << t << "\t" << sc.avg_ATP_nonprod << "\t" << sc.avg_ATP_prod_ok
 							<< "\t" << sc.avg_ATP_prod_impaired << "\n";
 			atp_group_trace.flush();
+			mito_type << t;
+				for (int k = 0; k < 3; ++k) mito_type << "\t" << sc.avg_ca_mito_type[k];
+				for (int k = 0; k < 3; ++k) mito_type << "\t" << sc.avg_psi_mito_type[k];
+				for (int k = 0; k < 3; ++k) mito_type << "\t" << sc.avg_cp_type[k];
+				for (int k = 0; k < 3; ++k) mito_type << "\t" << sc.avg_Juni_type[k];
+			mito_type << "\n";
+			mito_type.flush();
 			for (int id = 0; id < sc.n; ++id)
 			{
 				atp_full << sc.ATP_cyto[id];
@@ -400,10 +409,12 @@ int main(int argc, char *argv[])
 				 }
 			*/
 			if (t > 1000 and tn % 100 == 0)
+			//if (t > 1000 and tn % 1000 == 0) //for timestep = 0.001
 			{
 
 				char filename[1000];
 				sprintf(filename, "Data/ci_%04d.bin", tn / 100);
+				//sprintf(filename, "Data/ci_%04d.bin", tn / 1000); //for timestep = 0.001
 
 				ofstream out_ci(filename);
 

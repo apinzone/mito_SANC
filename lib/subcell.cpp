@@ -8,6 +8,7 @@
 
 //cell parameters
 const double CSubcell::vjsr = 0.02 * 0.5/**0.5*0.5*/; // [um^3]  // 19:43:48, Thu, 13-December-2018, By Haibo times 0.5
+//const double CSubcell::vp_ave = 0.00126; //test original scaling
 const double CSubcell::vp_ave = 0.00126 * 2; // because the ratio between vp and vi is smaller than the shannon model (increased two fold here); // [um^3]
 // const double CSubcell::Cmem = 1.1 * (1e-10); //  [F] *) xw: add Cm from GB model to convert the current and deliver tp "cell.cc"
 const double CSubcell::Cmem = 0.25 * (1e-10); //  Haibo modified to 25 pF for SAN of mouse
@@ -202,6 +203,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
 
   //cell parameters
   vi =  1.5 * 0.5 / finemesh3;
+  //vi = 0.5 ; //test song's Vi along with vp 
   vs = 0.025 / finemesh3;
   vnsr = 0.025 / finemesh3;
   V_mito = vi * (3.3 / 5.0) ;
@@ -900,6 +902,9 @@ void CSubcell::pace(double v, double nai)
   //Compute ATP and Mito initial fluxes - Moved before CRU loop so MCU and NCX fluxes can alter cp and ci concentrations 
   double sum_ATP = 0, sum_ca_mito = 0, sum_psi_mito = 0, sum_cp_prod = 0; //TEST
   double sum_J_uni = 0, sum_jNCX_m = 0, sum_Jflux_cp = 0, sum_NCXflux_ci = 0; //TEST
+  double sCa[3] = {0,0,0}, sPsi[3] = {0,0,0}, sCp[3] = {0,0,0}, sJ[3] = {0,0,0};
+  int    nTy[3] = {0,0,0};
+
     //initialize ATP and mito flux arrays with zeros 
     for (int id = 0; id < n; ++ id) {
       ATP_prod_rate[id] = 0;
@@ -973,6 +978,11 @@ void CSubcell::pace(double v, double nai)
       sum_jNCX_m     += jNCX_m;
       sum_Jflux_cp   += mito_Jflux_cp[prod_id];
       sum_NCXflux_ci += mito_NCXflux_ci[prod_id];
+      int ty = CRU_type[prod_id];            // type of this mito's producer CRU
+      if (ty >= 0 && ty <= 2) {
+        sCa[ty]  += ca_mito[id_mito];   sPsi[ty] += psi_mito[id_mito];
+        sCp[ty]  += ca_cleft_prod;      sJ[ty]   += J_uni;   nTy[ty]++;
+      }
     }
 
 
@@ -1361,6 +1371,14 @@ void CSubcell::pace(double v, double nai)
   avg_NCXflux_ci = sum_NCXflux_ci / n_mito;
   irave = sumir / n;
   iupave = sumjup / nn;
+  //test
+  for (int k = 0; k < 3; ++k) {
+    n_mito_type[k]       = nTy[k];
+    avg_ca_mito_type[k]  = nTy[k] ? sCa[k]  / nTy[k] : 0.0;
+    avg_psi_mito_type[k] = nTy[k] ? sPsi[k] / nTy[k] : 0.0;
+    avg_cp_type[k]       = nTy[k] ? sCp[k]  / nTy[k] : 0.0;
+    avg_Juni_type[k]     = nTy[k] ? sJ[k]   / nTy[k] : 0.0;
+  }
 
   ica_stan = 0.001 * sumica * (1e-15) * 2 * F * 1000 / Cmem //  [pA/pF], cleft space  sumica has vp accounted for 
              + 0.001 * sumica_sl * vs * (1e-15) * 2 * F * 1000 / Cmem //  [pA/pF], SL space

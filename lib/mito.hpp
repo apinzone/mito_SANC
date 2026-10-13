@@ -13,13 +13,13 @@ static constexpr double Bm_mito = 0.01 ; //Assume MPTP closed - ORIGINAL
 static constexpr double RTzF = (8.315 * 308) / (96.5 * 2); //z for Ca of +2  
 static constexpr double po_mito = 0.9 ; //MCU open probability 
 static constexpr int N_mcu = 200; //Number of MCUs per mito 
-static constexpr double gMCU_max = 8.1; //pS
+static constexpr double gMCU_max = 8.1; //pS Original Value
 static constexpr double Km_uni = 19000 ; //micromolar
 static constexpr double zFvmyo = 2.0 * 96.5 * 18 ; //z of 2 for Ca, 18 microl for vmyo
 static constexpr double mito_vol_scale = 1e5 ; //Per CRUs mito volume scaling (rather than whole cell)
 static constexpr double V_matrix_eff = 18.0 / mito_vol_scale; //Volume scaling 
 //Mito NCX - Song supplement 3.2 
-static constexpr double vNCX_max = 0.0035; //microM * ms^-1
+static constexpr double vNCX_max = 0.0035; //microM * ms^-1, original
 static constexpr double mito_v0 = 91 ; //mV
 static constexpr double kNa_mNCX = 9.4 ; //mM  
 static constexpr double n_mNCX = 3 ; //NCX cooperativity for Nai
