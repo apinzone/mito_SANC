@@ -5,6 +5,12 @@
 #include <utility>
 
 //Mito formulas
+//scaling factors 
+//static constexpr double gMCU_scale = 1 ; //scaling for MCU max conductance
+static constexpr double Km_uni_scale = 6 ; //scaling k constant for MCU (tuned at 6)
+static constexpr double vNCX_scale = 2 ; //scaling for NCX max transport rate, trying 2/5/10/20/30
+static constexpr double MCU_block_scale = 1 ; //Set equal to % of MCU activity you want (Ru360)
+static constexpr double mNCX_block_scale = 1; //Set equl to % of mNCX activity you want (CGP-13757)
 //Uniporter - Song supplement 3.1 
 static constexpr double Bm_mito = 0.01 ; //Assume MPTP closed - ORIGINAL
 //static constexpr double Bm_mito = 0.03 ; //Try differentvalue 
@@ -13,13 +19,12 @@ static constexpr double Bm_mito = 0.01 ; //Assume MPTP closed - ORIGINAL
 static constexpr double RTzF = (8.315 * 308) / (96.5 * 2); //z for Ca of +2  
 static constexpr double po_mito = 0.9 ; //MCU open probability 
 static constexpr int N_mcu = 200; //Number of MCUs per mito 
-static constexpr double gMCU_max = 8.1; //pS Original Value
-static constexpr double Km_uni = 19000 ; //micromolar
+static constexpr double gMCU_max = 8.1  * MCU_block_scale; //* gMCU_scale //pS Original Value
+static constexpr double Km_uni = 19000 / Km_uni_scale; //micromolar
 static constexpr double zFvmyo = 2.0 * 96.5 * 18 ; //z of 2 for Ca, 18 microl for vmyo
-static constexpr double mito_vol_scale = 1e5 ; //Per CRUs mito volume scaling (rather than whole cell)
-static constexpr double V_matrix_eff = 18.0 / mito_vol_scale; //Volume scaling 
+
 //Mito NCX - Song supplement 3.2 
-static constexpr double vNCX_max = 0.0035; //microM * ms^-1, original
+static constexpr double vNCX_max = 0.0035 * vNCX_scale * mNCX_block_scale; //microM * ms^-1, original
 static constexpr double mito_v0 = 91 ; //mV
 static constexpr double kNa_mNCX = 9.4 ; //mM  
 static constexpr double n_mNCX = 3 ; //NCX cooperativity for Nai
@@ -43,7 +48,7 @@ static constexpr double kd_deltam = 150;
 static constexpr double kd_psn = 0.02 ; 
 static constexpr double kd_psp = 0.5 ; 
 //static constexpr double DATP = 0.00001 ; //Test
-static constexpr double DATP = 0.01; //Value that yield most heterogeneity (~13 uM swing at 24:1 CRU:mito ratio)
+static constexpr double DATP = 0.01; //Value that yield most heterogeneity (~13 uM difference across CRU grid at 24:1 CRU:mito ratio)
 //static constexpr double DATP = 0.05; 
 //static constexpr double DATP = 0.1; 
 //static constexpr double DATP = 0.15;

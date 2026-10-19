@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 	//Adjust boolean clamps
 	bool Na_clamp = true;
 	//AP clamp with pregenerated waveforms 
-	bool AP_clamp_on = true;  
+	bool AP_clamp_on = false;  
 	double AP_clamp_CL = 5000.0 ;  //106 (validation), 135, 150, 190, 235, 250, 285, 350 ;
 	//Must  extend simulation time based on CL for AP clamp to match number of beats for a 100 beat simulation with BCL 
 
@@ -44,9 +44,8 @@ int main(int argc, char *argv[])
 	sc.nzover_nzmito = 2 ;
 
 	//Clamp ATP for whole simulation
-	sc.ATP_clamp_on = false ; 
-	sc.ATP_clamp = 5000; 
-
+	sc.ATP_clamp_on = false; 
+	sc.ATP_clamp = 500; 
 	//Consistently impair ATP production by scaling factor for every producer CRU 
 	sc.ATP_impair_on = false ;
 	sc.ATP_impair_scale = 0.2 ; 
@@ -55,7 +54,7 @@ int main(int argc, char *argv[])
 	int Tn = 60000.0 / dt;
 	ofstream os("ci.txt");
 	double v = -80; 
-
+	
 #ifdef CAV3_INCX
 	if (argc == 3)
 	{
@@ -123,10 +122,11 @@ int main(int argc, char *argv[])
 #endif
 
 	sc.CLAMP_Cai = false;
+	//sc.setlayer(4);   // TEST: flag all CRUs as peripheral
 	sc.init(0.1, 800, LTCC_alpha, LTCC_gamma, random_seed);
 
 	std::cout << sc.NUM_Ttubule << std::endl;
-
+	std::cout << "  vNCX_scale " << vNCX_scale << "kMCU scale" << Km_uni_scale << std::endl;
 	// Initialize CRU properties
 	sc.set_CRU_type();
 	sc.assign_mito();

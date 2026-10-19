@@ -8,7 +8,7 @@
 
 //cell parameters
 const double CSubcell::vjsr = 0.02 * 0.5/**0.5*0.5*/; // [um^3]  // 19:43:48, Thu, 13-December-2018, By Haibo times 0.5
-//const double CSubcell::vp_ave = 0.00126; //test original scaling
+//const double CSubcell::vp_ave = 0.00126; //test Song  scaling
 const double CSubcell::vp_ave = 0.00126 * 2; // because the ratio between vp and vi is smaller than the shannon model (increased two fold here); // [um^3]
 // const double CSubcell::Cmem = 1.1 * (1e-10); //  [F] *) xw: add Cm from GB model to convert the current and deliver tp "cell.cc"
 const double CSubcell::Cmem = 0.25 * (1e-10); //  Haibo modified to 25 pF for SAN of mouse
@@ -947,10 +947,6 @@ void CSubcell::pace(double v, double nai)
       double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
       mito_Jflux_cp[prod_id] = J_uni  * (V_mito / vp[prod_id]) ; //actual proportional volume for mito
       mito_NCXflux_ci[prod_id] = jNCX_m * (V_mito / vi) ; //actual proportional volume for mito
-      //mito_Jflux_cp[prod_id] = po_mito * N_mcu * iMCU / (2.0*96.5 * vp[prod_id]) ;   // Update
-      //mito_NCXflux_ci[prod_id] = jNCX_m * (18.0 / vi) ;   // Update
-      //mito_Jflux_cp[prod_id] = J_uni * (V_matrix_eff / vp[prod_id]) ;
-      //mito_NCXflux_ci[prod_id] = jNCX_m * (V_matrix_eff/vi) ;
 
       if (id_mito == 0) {
         trace_mitoJfluxCp0   = mito_Jflux_cp[prod_id];   
