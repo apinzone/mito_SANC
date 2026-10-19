@@ -8,7 +8,7 @@
 //scaling factors 
 //static constexpr double gMCU_scale = 1 ; //scaling for MCU max conductance
 static constexpr double Km_uni_scale = 6 ; //scaling k constant for MCU (tuned at 6)
-static constexpr double vNCX_scale = 2 ; //scaling for NCX max transport rate, trying 2/5/10/20/30
+static constexpr double vNCX_scale = 6 ; //scaling for NCX max transport rate, trying 2/5/10/20/30
 static constexpr double MCU_block_scale = 1 ; //Set equal to % of MCU activity you want (Ru360)
 static constexpr double mNCX_block_scale = 1; //Set equl to % of mNCX activity you want (CGP-13757)
 //Uniporter - Song supplement 3.1 
