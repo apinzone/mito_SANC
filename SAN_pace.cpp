@@ -8,7 +8,6 @@ using namespace std;
 #include "subcell.hpp"
 #include "SAN_elecphysio.hpp"
 #include "input_output.h"
-Mito mito_main;
 // #include <direct.h>
 // #define CAV3_INCX
 // #define CAV3_ICaT
@@ -124,10 +123,14 @@ int main(int argc, char *argv[])
 
 	sc.CLAMP_Cai = false;
 	//sc.setlayer(4);   // TEST: flag all CRUs as peripheral
+	//Can override mito constructor defaults here if desired, must be before sc.init
+	sc.mito = Mito(4,4,1,1) ; //MCU_scale, vNCX scale, MCU_block_activity, mNCX_block_activity defaults are 4,4,1,1 - Anthony 10-25-2026
+	//For example, simulating 50% MCU block (4,4,0.5,1), 50% mNCX block: (4,4,1,0.5) ;
 	sc.init(0.1, 800, LTCC_alpha, LTCC_gamma, random_seed);
 
 	std::cout << sc.NUM_Ttubule << std::endl;
-	std::cout << "  vNCX_scale " << mito_main.vNCX_scale << "kMCU scale" << mito_main.Km_uni_scale << std::endl;
+	std::cout << "  vNCX_scale " << sc.mito.vNCX_scale << "kMCU scale " << sc.mito.Km_uni_scale << "MCU_block_scale " 
+	<< sc.mito.MCU_block_scale << "mNCX block scale " << sc.mito.mNCX_block_scale << std::endl;
 	// Initialize CRU properties
 	sc.set_CRU_type();
 	sc.assign_mito();
@@ -341,7 +344,7 @@ int main(int argc, char *argv[])
 			}
 			cout << t << "\t" << sc.ci[0] << "\t" << sc.cp[0] << endl;
 			// os << t << "\t" << v << "\t" << sc.ica_stan << "\t" << sc.num_open_ICaL << "\t" << Cell.ical12 / 0.025 << "\t" << Cell.ical13 / 0.025 << "\t" ;
-			double avg_ADP = mito_main.ADP_buffer_rate * (mito_main.TAN - sc.avg_ATP);
+			double avg_ADP = sc.mito.ADP_buffer_rate * (sc.mito.TAN - sc.avg_ATP);
 
 			mito_summary << t << "\t" << sc.avg_ATP << "\t" << avg_ADP
 						 << "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito

@@ -1,6 +1,5 @@
 #include "subcell.hpp"
 #include "mito.hpp"
-Mito mito_ATP ;
 void CSubcell::compute_J_ATP_D(void)
 {
   // Matches Song's SpatialCell.cu diffusion kernel exactly:
@@ -25,8 +24,8 @@ void CSubcell::compute_J_ATP_D(void)
         int idi = (k == 0)      ? id : id - nx * ny;
         int ido = (k == nz - 1) ? id : id + nx * ny;
 
-        J_ATP_D[id] = (ATP_cyto[idl] + ATP_cyto[idr] - 2 * ATP_cyto[id]) * mito_ATP.DATP / (mito_ATP.l_L_atp * mito_ATP.l_L_atp)
-                    + (ATP_cyto[idu] + ATP_cyto[idd] + ATP_cyto[idi] + ATP_cyto[ido] - 4 * ATP_cyto[id]) * mito_ATP.DATP / (mito_ATP.l_T_atp * mito_ATP.l_T_atp);
+        J_ATP_D[id] = (ATP_cyto[idl] + ATP_cyto[idr] - 2 * ATP_cyto[id]) * mito.DATP / (mito.l_L_atp * mito.l_L_atp)
+                    + (ATP_cyto[idu] + ATP_cyto[idd] + ATP_cyto[idi] + ATP_cyto[ido] - 4 * ATP_cyto[id]) * mito.DATP / (mito.l_T_atp * mito.l_T_atp);
       }
     }
   }
