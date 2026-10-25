@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
 	//Clamp ATP for whole simulation
 	sc.ATP_clamp_on = false; 
-	sc.ATP_clamp = 500; 
+	sc.ATP_clamp = 20; 
 	//Consistently impair ATP production by scaling factor for every producer CRU 
 	sc.ATP_impair_on = false ;
 	sc.ATP_impair_scale = 0.2 ; 
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 	std::ofstream atp_full("atp_full_grid.txt");
 	std::ofstream ikatp_inak_serca_trace("ikatp_inak_serca_trace.txt");
 	//std::ofstream vm_hr("vm_hr.txt");
-	ikatp_inak_serca_trace << "time\tATP_ave\tp_kATP\tikATP\tinak\tIup_avg\n";
+	ikatp_inak_serca_trace << "time\tATP_ave\tp_kATP\tikATP\tinak\tIup_avg\tnai\n";
 
 	// print CRu type with producer mito
 	int count_type0 = 0, count_type1 = 0, count_type2 = 0;
@@ -198,6 +198,26 @@ int main(int argc, char *argv[])
 	}
 	producer_mask << "\n";
 	producer_mask.close();
+
+	// [added] Spatial snapshot output: per-mitochondrion Ca, Psi and producer-CRU cleft Ca,
+	// written every 1 ms for the last snap_window_ms of the run (for linescans / heatmaps).
+	// mito_map.txt gives, for each mito index, its grid position and producer CRU type.
+	const double snap_window_ms = 2000.0;
+	std::ofstream mito_map("mito_map.txt");
+	mito_map << "id_mito\tmx\tmy\tmz\tprod_id\tCRU_type\n";
+	for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito)
+	{
+		int mx = id_mito % sc.nx_mito;
+		int my = (id_mito / sc.nx_mito) % sc.ny_mito;
+		int mz = id_mito / (sc.nx_mito * sc.ny_mito);
+		int pid = sc.CRU_producer_status[id_mito];
+		mito_map << id_mito << "\t" << mx << "\t" << my << "\t" << mz << "\t" << pid
+				 << "\t" << sc.CRU_type[pid] << "\n";
+	}
+	mito_map.close();
+	std::ofstream mito_ca_grid("mito_ca_grid.txt");     // row: t, ca_mito[0..n_mito-1]   (uM)
+	std::ofstream mito_psi_grid("mito_psi_grid.txt");   // row: t, psi_mito[0..n_mito-1]  (mV)
+	std::ofstream mito_cp_grid("mito_cp_grid.txt");     // row: t, cp[producer of each mito] (uM)
 
 	delete[] producer_highlight;
 
@@ -306,6 +326,18 @@ int main(int argc, char *argv[])
 		if (tn % 100 == 0)
 		//if (tn % 1000 == 0) //for timestep = 0.001
 		{
+			// [added] spatial snapshots, last snap_window_ms only
+			if (t >= Tn * dt - snap_window_ms)
+			{
+				mito_ca_grid << t;  mito_psi_grid << t;  mito_cp_grid << t;
+				for (int id_mito = 0; id_mito < sc.n_mito; ++id_mito)
+				{
+					mito_ca_grid  << "\t" << sc.ca_mito[id_mito];
+					mito_psi_grid << "\t" << sc.psi_mito[id_mito];
+					mito_cp_grid  << "\t" << sc.cp[sc.CRU_producer_status[id_mito]];
+				}
+				mito_ca_grid << "\n";  mito_psi_grid << "\n";  mito_cp_grid << "\n";
+			}
 			cout << t << "\t" << sc.ci[0] << "\t" << sc.cp[0] << endl;
 			// os << t << "\t" << v << "\t" << sc.ica_stan << "\t" << sc.num_open_ICaL << "\t" << Cell.ical12 / 0.025 << "\t" << Cell.ical13 / 0.025 << "\t" ;
 			double avg_ADP = ADP_buffer_rate * (TAN - sc.avg_ATP);
@@ -342,7 +374,7 @@ int main(int argc, char *argv[])
 			atp_full.flush();
 			ikatp_inak_serca_trace << t << "\t" << sc.avg_ATP << "\t" << Cell.p_kATP
 								   << "\t" << Cell.ikATP << "\t" << Cell.inak
-								   << "\t" << sc.iupave << "\n";
+								   << "\t" << sc.iupave << "\t" << Cell.y[34] << "\n"; //Cell.y[34] is nai
 			ikatp_inak_serca_trace.flush();
 			int j_mid = sc.ny / 2;
 			int k_mid = sc.nz / 2;
@@ -462,5 +494,6 @@ int main(int argc, char *argv[])
 	mito_summary.close();
 	atp_linescan.close();
 	atp_full.close();
+	mito_ca_grid.close();  mito_psi_grid.close();  mito_cp_grid.close();   // [added]
 	return 0;
 }

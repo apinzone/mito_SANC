@@ -3,14 +3,17 @@
 #include <vector> 
 #include <cmath>
 #include <utility>
+//#include "subcell.hpp"
+//#include "SAN_elecphysio.hpp"
+//SAN_elecphysio Cell ;
 
 //Mito formulas
 //scaling factors 
 //static constexpr double gMCU_scale = 1 ; //scaling for MCU max conductance
-static constexpr double Km_uni_scale = 6 ; //scaling k constant for MCU (tuned at 6)
-static constexpr double vNCX_scale = 6 ; //scaling for NCX max transport rate, trying 2/5/10/20/30
-static constexpr double MCU_block_scale = 1 ; //Set equal to % of MCU activity you want (Ru360)
-static constexpr double mNCX_block_scale = 1; //Set equl to % of mNCX activity you want (CGP-13757)
+static constexpr double Km_uni_scale = 4 ; //scaling k constant for MCU (tuned at 6) 
+static constexpr double vNCX_scale = 4 ; //scaling for NCX max transport rate, trying 2/5/10/20/30
+static constexpr double MCU_block_scale = 1 ; //Set equal to % of MCU activity you want (Ru360) - 0.1 = 90% block
+static constexpr double mNCX_block_scale = 1; //Set equl to % of mNCX activity you want (CGP-13757) - 0.1 = 90% block 1
 //Uniporter - Song supplement 3.1 
 static constexpr double Bm_mito = 0.01 ; //Assume MPTP closed - ORIGINAL
 //static constexpr double Bm_mito = 0.03 ; //Try differentvalue 
@@ -30,7 +33,8 @@ static constexpr double kNa_mNCX = 9.4 ; //mM
 static constexpr double n_mNCX = 3 ; //NCX cooperativity for Nai
 static constexpr double kCa_mNCX = 0.375 ; //micromolar 
 static constexpr double bfRT = (0.5 * 96.5) / (8.316 * 308); //constant b of 0.5 
-static constexpr double nai_mito = 10.0 ; //clamped na standin 
+static constexpr double nai_mito =  10.0 ; //clamped at 10 
+//double nai_mito =  Cell.y[34]; //clamped na standin 
 
 //Mito Membrane Potential (psi) - Song Supplement 3.6
 static constexpr double V_mitos = 3.5 ; //mV*ms*-1
