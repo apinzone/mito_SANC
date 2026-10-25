@@ -1,9 +1,79 @@
-# Simulation outputs
+# ---------------------------------------------------------------
+# mito_SANC - track code only. Everything a run produces stays out.
+# ---------------------------------------------------------------
+
+# Build artifacts
+*.o
+*.d
+*.a
+*.so
+lib/build/
+SAN_pace            # the compiled binary (the .cpp is tracked)
+
+# Simulation output
 *.txt
+*.csv
 *.bin
+*.dat
 *.vtk
+*.h5
+
+# Common run/output directories (add your own as you make them)
+retune/
+ATP_dir/
+orig_dir/
+mito_dir/
+snapshots/
+
+# Job + log output
+sim.log
+res_omp.txt
+err_omp.txt
+slurm-*.out
+
+# Figures
 *.png
-*.fig
+*.jpg
 *.jpeg
-*.m
+*.tif
+*.tiff
+*.pdf
+*.eps
+*.svg
+*.fig
+
+# MATLAB
 *.mat
+*.asv
+*.slxc
+# NOTE: *.m is deliberately NOT ignored here. The previous .gitignore had it,
+# which silently excludes MATLAB analysis scripts. If your .m files live
+# outside this repo and you want them to stay out, uncomment:
+# *.m
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------
+# Exceptions - keep these even though the rules above match them.
+# ---------------------------------------------------------------
+!.gitignore
+!Readme.md
+
+
+
