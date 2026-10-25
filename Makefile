@@ -2,7 +2,7 @@ DEF= -DCPU
 # CXX=g++
 CXX=icpx
 # CXX=g++ #use g++ if icpc is not available 
-CXXFLAGS=-O3 -qopenmp   -std=c++11 -Ilib# -lz  # for icpc
+CXXFLAGS=-O3 -qopenmp   -std=c++17 -Ilib# -lz  # for icpc
 # CXXFLAGS=-O3 -fopenmp   -std=c++11 -Ilib -lz # for g++
 
 # CXX = g++

@@ -923,10 +923,10 @@ void CSubcell::pace(double v, double nai)
       double mito_ca = ca_mito[id_mito] ; 
       //Extract ATP and ADP
       double ATP = ATP_cyto[prod_id] ;
-      double ADP = ADP_buffer_rate * (TAN - ATP) ;
+      double ADP = mito.ADP_buffer_rate * (mito.TAN - ATP) ;
       //Calculate fluxes for MCU and mito NCX
-      auto [iMCU, J_uni] = update_MCU(ca_cleft_prod, mito_psi, mito_ca) ;
-      double jNCX_m = update_NCX_mito(cai_prod, mito_psi, mito_ca) ;
+      auto [iMCU, J_uni] = mito.update_MCU(ca_cleft_prod, mito_psi, mito_ca) ;
+      double jNCX_m = mito.update_NCX_mito(cai_prod, mito_psi, mito_ca) ;
     
       //Extract one mito for test
       if (id_mito == 0) {
@@ -942,11 +942,11 @@ void CSubcell::pace(double v, double nai)
 
       //Compute Mito Psi 
       //Scaling for Uni and NCx 
-      double I_uni = z_Ca * (1/ C_mito) * J_uni ;
-      double I_NCX_m = (1/C_mito) * jNCX_m ;
-      double psi_mito_dot = V_mitos - k_mitou * mito_psi - I_uni - I_NCX_m ;
-      mito_Jflux_cp[prod_id] = J_uni  * (V_mito / vp[prod_id]) ; //actual proportional volume for mito
-      mito_NCXflux_ci[prod_id] = jNCX_m * (V_mito / vi) ; //actual proportional volume for mito
+      double I_uni = mito.z_Ca * (1/ mito.C_mito) * J_uni ;
+      double I_NCX_m = (1/mito.C_mito) * jNCX_m ;
+      double psi_mito_dot = mito.V_mitos - mito.k_mitou * mito_psi - I_uni - I_NCX_m ;
+      mito_Jflux_cp[prod_id] = J_uni  * (V_mito / vp[prod_id]) ; // proportional volume for mito/
+      mito_NCXflux_ci[prod_id] = jNCX_m * (V_mito / vi) ; // proportional volume for mito
 
       if (id_mito == 0) {
         trace_mitoJfluxCp0   = mito_Jflux_cp[prod_id];   
@@ -954,7 +954,7 @@ void CSubcell::pace(double v, double nai)
       }
 
       //Compute ATP Production (Producer CRUs only)
-      double VATPase = update_ATP_production(mito_psi, ATP, ADP); 
+      double VATPase = mito.update_ATP_production(mito_psi, ATP, ADP); 
       if(ATP_impair[id_mito]) {
         VATPase *= ATP_impair_scale ;
       }
@@ -962,7 +962,7 @@ void CSubcell::pace(double v, double nai)
           trace_prod0 = VATPase;
       }
       //Integrate Mito Ca, Psi mito, and ATP
-      ca_mito[id_mito] += dt * (Bm_mito *(J_uni - jNCX_m)) ;
+      ca_mito[id_mito] += dt * (mito.Bm_mito *(J_uni - jNCX_m)) ;
       psi_mito[id_mito] += dt * psi_mito_dot ;
       ATP_prod_rate[prod_id] = VATPase; //Prod. CRUs only
 
@@ -1161,7 +1161,7 @@ void CSubcell::pace(double v, double nai)
   {
     //SERCA Uptake current Iup
     const double H = 1.787;
-    double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ; //compute local ADP per CRU
+    double ADP_local = mito.ADP_buffer_rate * (mito.TAN - ATP_cyto[id]) ; //compute local ADP per CRU
     double fSERCA_ATP = 1.0 / (1.0 + ADP_local/kiupprime + (1.0 + ADP_local/kiup) * kmupATP/ATP_cyto[id]);
     double Iup = fSERCA_ATP * SERCA_scale * vup * (pow(ci[id] / kup, H) - pow(cnsr[id] / KNSR, H)) / (1 + pow(ci[id] / kup, H) + pow(cnsr[id] / KNSR, H));
 
@@ -1333,8 +1333,8 @@ void CSubcell::pace(double v, double nai)
     if (ATP_clamp_on) {
       ATP_cyto[id] = ATP_clamp ;
     } else {
-      double ADP_local = ADP_buffer_rate * (TAN - ATP_cyto[id]) ;
-      double VATP_consum = update_ATP_consumption(ATP_cyto[id], ADP_local) ;
+      double ADP_local = mito.ADP_buffer_rate * (mito.TAN - ATP_cyto[id]) ;
+      double VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local) ;
       ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
       if (id == CRU_producer_status[0]) {
         trace_consum0 = VATP_consum;
@@ -1356,7 +1356,7 @@ void CSubcell::pace(double v, double nai)
   avg_ATP_nonprod = sum_ATP_nonprod / n_nonprod;
   avg_ATP_prod_ok = (n_prod_ok > 0) ? sum_ATP_prod_ok / n_prod_ok : 0;
   avg_ATP_prod_impaired = (n_prod_imp > 0) ? sum_ATP_prod_imp / n_prod_imp : 0;
-  avg_ADP = ADP_buffer_rate * (TAN -avg_ATP);
+  avg_ADP = mito.ADP_buffer_rate * (mito.TAN -avg_ATP);
 
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;

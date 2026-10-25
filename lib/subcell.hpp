@@ -41,7 +41,7 @@ using namespace std;
 #include "inaca.hpp"
 #include "LTCC_unitary.hpp"
 #include "mito.hpp"
-
+Mito mito ; //Create mito object 
 
 class CSubcell {
 public:

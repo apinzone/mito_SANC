@@ -49,7 +49,7 @@ slurm-*.out
 # NOTE: *.m is deliberately NOT ignored here. The previous .gitignore had it,
 # which silently excludes MATLAB analysis scripts. If your .m files live
 # outside this repo and you want them to stay out, uncomment:
-# *.m
+*.m
 
 # Archives
 *.tar
