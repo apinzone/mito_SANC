@@ -284,7 +284,7 @@ int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave, double AD
 	// IKATP - ATP Dependent K+ Current **************************************** Added 25-09-26 by Anthony
 	double gamma_kATP = 0.0236 * pow(ko, 0.24) ;
 	p_kATP = 0.8 / (1.0 + ATP_ave / 100.0 * ATP_ave / 100.0);
-	ikATP = (n_kATP * gamma_kATP * (y[36] - ek) * p_kATP * iKATP_scale) * 0 ; //Removed capacitance from Song's equation; we divide capacitance later
+	ikATP = (n_kATP * gamma_kATP * (y[36] - ek) * p_kATP * iKATP_scale) ;//* 0 ; //Removed capacitance from Song's equation; we divide capacitance later
 
 	//  Isus - Sustained component of 4-AP-sensitive currents ******************
 	isus = par_SA[-1 + 12] * gsus * r * (v - ek);
@@ -296,7 +296,7 @@ int SAN_elecphysio::update_Na_and_K_currents(double t, double ATP_ave, double AD
 	//    INaK - Na-K pump current ***********************************************
 	double fATP_nak = ATP_ave / (ATP_ave + (k1ATPnak) * (1.0 + ADP_ave / kiADPnak)) ;
 	inak = (par_SA[15 - 1] * inakmax * ((pow(ko, 1.2)) / (pow(kmkp, 1.2) + pow(ko, 1.2))) * (pow(nai, 1.3) / (pow(kmnap, 1.3) + pow(nai, 1.3))) / (1.0 + exp(-(v - ena + 120.0) / 30.0))) * fATP_nak;
-
+	j_nak_ATP = (inak / (F * vi)) * 1000 ; // uM/ms
 
 	//     Jrel = par_SA(17)*ks*open*(caup - casub);
 	//     Fcq_dot = kfCQ*caup*(1.0-Fcq)-kbCQ*Fcq; // SRcomp

@@ -189,10 +189,6 @@ public:
   double avg_ATP;
   double avg_ADP;
   bool ATP_clamp_on;
-  bool Ru360_on;
-  bool CGP_on;
-  double Ru360_scale;
-  double CGP_scale;
   double ATP_clamp;
   bool ATP_impair_on ; //Toggle switch for ATP impair status 
   double ATP_impair_scale; //Clamp boolean statement below since each prod CRU will have a value 
@@ -210,7 +206,7 @@ public:
   double trace_prod0, trace_consum0, trace_diff0;
   static const double vjsr;
   double vnsr;
-
+  double jnak_ATP ; 
   static const double Cmem; //  *) xw: add the C_membrane
 
   std::vector<ical13> ical13_vec;

@@ -88,9 +88,10 @@ public:
     };
 
     //Compute ATP Production and Consumption 
-    double update_ATP_consumption(double ATP, double ADP) const{
+    double update_ATP_consumption(double ATP, double ADP, double j_up, double j_pmca, double j_nak) const{
     double psp = ATP/ADP; 
-    double VATP_consum = k_ATPconsum * (psp / (psp + k_dpspconsum));
+    double VATP_basal = k_ATPconsum * (psp / (psp + k_dpspconsum));
+    double VATP_consum = VATP_basal + (0.5 * j_up) + j_pmca + j_nak;
     return VATP_consum;
     }
 

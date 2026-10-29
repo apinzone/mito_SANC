@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 
 		// Cell.update(t+dt/2.0);
 		Cell.update_Na_and_K_currents(t, sc.avg_ATP, sc.avg_ADP);
-
+		sc.jnak_ATP = Cell.j_nak_ATP ; //update ATP consumption for nak and pass to subcell where it is distributed across peripheral CRUs 
 		// Cell.update_Ca_currents(t);
 		// Cell.com_INaCa(t);
 		Cell.ical13 = sc.ica_stan * 0.025;
@@ -345,7 +345,6 @@ int main(int argc, char *argv[])
 			cout << t << "\t" << sc.ci[0] << "\t" << sc.cp[0] << endl;
 			// os << t << "\t" << v << "\t" << sc.ica_stan << "\t" << sc.num_open_ICaL << "\t" << Cell.ical12 / 0.025 << "\t" << Cell.ical13 / 0.025 << "\t" ;
 			double avg_ADP = sc.mito.ADP_buffer_rate * (sc.mito.TAN - sc.avg_ATP);
-
 			mito_summary << t << "\t" << sc.avg_ATP << "\t" << avg_ADP
 						 << "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito
 						 << "\t" << sc.compute_avg_ci() << "\t" << sc.avg_cp_prod

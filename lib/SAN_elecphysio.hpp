@@ -102,7 +102,7 @@ public:
 	double ical12, ical13;
 	double inak, inaca;
 	double Jrel, Jup, Jtr;
-
+	double j_nak_ATP ;
 
 
 

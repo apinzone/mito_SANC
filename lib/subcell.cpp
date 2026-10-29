@@ -1334,7 +1334,9 @@ void CSubcell::pace(double v, double nai)
       ATP_cyto[id] = ATP_clamp ;
     } else {
       double ADP_local = mito.ADP_buffer_rate * (mito.TAN - ATP_cyto[id]) ;
-      double VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local) ;
+      double jpca_ATP = jpca_array[id] * (vs/vi) ; 
+      double j_nak_local = jnak_ATP * (n / (double)n_tubule) * tubule_flag[id];
+      double VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local, j_serca[id], jpca_ATP, jnak_local) ;
       ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
       if (id == CRU_producer_status[0]) {
         trace_consum0 = VATP_consum;
