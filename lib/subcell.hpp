@@ -204,6 +204,7 @@ public:
   double V_mito;
   double trace_ca_mito0, trace_psi_mito0, trace_cp0, trace_Juni0, trace_jncx0;
   double trace_mitoJfluxCp0, trace_mitoNCXfluxCi0;
+  double avg_ATP_serca,  avg_ATP_pmca, avg_ATP_nak, avg_ATP_basal ; 
   double trace_cai0, trace_atp0, trace_adp0 ; 
   double trace_prod0, trace_consum0, trace_diff0;
   static const double vjsr;

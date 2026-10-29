@@ -305,7 +305,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   ATP_impair = new bool [n_mito] ;
 
   set_lateral_Ttubule();
-  n_tubule = 0;
+  n_tubule = 0; 
   for (int i = 0; i < n; ++i)
     if (tubule_flag[i] == 1.0) n_tubule++;
 
@@ -1336,8 +1336,8 @@ void CSubcell::pace(double v, double nai)
   }
   
   compute_J_ATP_D() ; //Compute Diffusion term for ATP
-
   //Finish integrating ATP with clamp option
+  double sum_serca_ATP = 0, sum_pmca_ATP = 0, sum_nak_ATP = 0, sum_basal_ATP = 0;
   for (int id = 0; id < n; ++ id) {
     if (ATP_clamp_on) {
       ATP_cyto[id] = ATP_clamp ;
@@ -1345,10 +1345,16 @@ void CSubcell::pace(double v, double nai)
       double ADP_local = mito.ADP_buffer_rate * (mito.TAN - ATP_cyto[id]) ;
       double jpca_ATP = jpca_array[id] * (vs/vi) ; 
       double j_nak_local = jnak_ATP * (n / (double)n_tubule) * tubule_flag[id];
-      double VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local, j_serca[id], jpca_ATP, j_nak_local) ;
+      std::array<double,4> VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local, j_serca[id], jpca_ATP, j_nak_local) ;
+      double total_consumption = VATP_consum[0] + VATP_consum[1] + VATP_consum[2] + VATP_consum[3] ; //take sum of array returned from consumption function fluxes
+      sum_basal_ATP += VATP_consum[0];
+      sum_serca_ATP += VATP_consum[1];
+      sum_pmca_ATP  += VATP_consum[2];
+      sum_nak_ATP   += VATP_consum[3];
+    
       ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
       if (id == CRU_producer_status[0]) {
-        trace_consum0 = VATP_consum;
+        trace_consum0 = total_consumption;
         trace_diff0   = J_ATP_D[id];
       }
     }
@@ -1364,11 +1370,14 @@ void CSubcell::pace(double v, double nai)
   }
 
   avg_ATP = sum_ATP_all / n;
+  avg_ATP_serca = sum_serca_ATP / n;
+  avg_ATP_pmca  = sum_pmca_ATP  / n;
+  avg_ATP_nak   = sum_nak_ATP   / n;
+  avg_ATP_basal = sum_basal_ATP / n;
   avg_ATP_nonprod = sum_ATP_nonprod / n_nonprod;
   avg_ATP_prod_ok = (n_prod_ok > 0) ? sum_ATP_prod_ok / n_prod_ok : 0;
   avg_ATP_prod_impaired = (n_prod_imp > 0) ? sum_ATP_prod_imp / n_prod_imp : 0;
   avg_ADP = mito.ADP_buffer_rate * (mito.TAN -avg_ATP);
-
   avg_ca_mito = sum_ca_mito / n_mito;
   avg_psi_mito = sum_psi_mito / n_mito;
   avg_cp_prod = sum_cp_prod / n_mito;
