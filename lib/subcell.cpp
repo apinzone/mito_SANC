@@ -305,6 +305,7 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   ATP_impair = new bool [n_mito] ;
 
   set_lateral_Ttubule();
+  n_tubule = 0;
   for (int i = 0; i < n; ++i)
     if (tubule_flag[i] == 1.0) n_tubule++;
 
