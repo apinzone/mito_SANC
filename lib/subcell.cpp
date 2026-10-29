@@ -305,6 +305,13 @@ void CSubcell::init(double initci, double initcj, int LTCC_alpha_in, int LTCC_ga
   ATP_impair = new bool [n_mito] ;
 
   set_lateral_Ttubule();
+  for (int i = 0; i < n; ++i)
+    if (tubule_flag[i] == 1.0) n_tubule++;
+
+  if (n_tubule == 0) {
+    std::cerr << "n_tubule == 0; Na/K ATP distribution would divide by zero" << std::endl;
+    std::exit(1);
+}
   // 18:15:28, Tue, 11-December-2018, By Haibo
 
 
@@ -671,7 +678,8 @@ CSubcell& CSubcell::operator=(const CSubcell& sc)
   xi = sc.xi;
   // *) xw: set the layer from outside
   layer = sc.layer;
-
+  n_tubule  = sc.n_tubule;
+  jnak_ATP  = sc.jnak_ATP;
   cao = sc.cao;
   vup = sc.vup;
   kup = sc.kup;
@@ -1336,7 +1344,7 @@ void CSubcell::pace(double v, double nai)
       double ADP_local = mito.ADP_buffer_rate * (mito.TAN - ATP_cyto[id]) ;
       double jpca_ATP = jpca_array[id] * (vs/vi) ; 
       double j_nak_local = jnak_ATP * (n / (double)n_tubule) * tubule_flag[id];
-      double VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local, j_serca[id], jpca_ATP, jnak_local) ;
+      double VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local, j_serca[id], jpca_ATP, j_nak_local) ;
       ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
       if (id == CRU_producer_status[0]) {
         trace_consum0 = VATP_consum;

@@ -197,6 +197,8 @@ public:
   double avg_cp_prod ; 
   double avg_J_uni, avg_jNCX_m ;
   double avg_Jflux_cp, avg_NCXflux_ci; 
+  double jnak_ATP = 0.0 ;
+  int n_tubule = 0 ;  
   double avg_ca_mito_type[3], avg_psi_mito_type[3], avg_cp_type[3], avg_Juni_type[3]; //test to write by CRU type
   int    n_mito_type[3];
   double V_mito;
@@ -206,7 +208,6 @@ public:
   double trace_prod0, trace_consum0, trace_diff0;
   static const double vjsr;
   double vnsr;
-  double jnak_ATP ; 
   static const double Cmem; //  *) xw: add the C_membrane
 
   std::vector<ical13> ical13_vec;
