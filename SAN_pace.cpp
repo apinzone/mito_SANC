@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 	std::ofstream atp_group_trace("atp_group_trace.txt");
 	std::ofstream mito_type("mito_by_type.txt");
 
-	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\tavg_J_uni\tavg_jNCX_m\tavg_Jflux_cp\tavg_NCXflux_ci\n";
+	mito_summary << "time\tavg_ATP\tavg_ADP\tavg_ca_mito\tavg_psi_mito\tavg_cai\tavg_cp_prod\tavg_J_uni\tavg_jNCX_m\tavg_Jflux_cp\tavg_NCXflux_ci\tavg_ATP_serca\tavg_ATP_pmca\tavg_ATP_nak\tavg_ATP_basaln";
 	mito0_trace << "time\tcp0\tcai0\tJ_uni0\tjNCX_m0\tca_mito0\tpsi_mito0\tatp0\tadp0\tprod0\tconsum0\tdiff0\tmitoJfluxCp0\tmitoNCXfluxCi0\n";
 	atp_group_trace << "time\tATP_nonprod\tATP_prod_unimpaired\tATP_prod_impaired\n"; // header, once before loop
 	mito_type << "time\tca_mito_0\tca_mito_1\tca_mito_2\tpsi_0\tpsi_1\tpsi_2\tcp_0\tcp_1\tcp_2\tJuni_0\tJuni_1\tJuni_2\n" ;
@@ -349,7 +349,10 @@ int main(int argc, char *argv[])
 						 << "\t" << sc.avg_ca_mito << "\t" << sc.avg_psi_mito
 						 << "\t" << sc.compute_avg_ci() << "\t" << sc.avg_cp_prod
 						 << "\t" << sc.avg_J_uni << "\t" << sc.avg_jNCX_m
-						 << "\t" << sc.avg_Jflux_cp << "\t" << sc.avg_NCXflux_ci << "\n";
+						 << "\t" << sc.avg_Jflux_cp << "\t" << sc.avg_NCXflux_ci 
+						 << "\t" << sc.avg_Jflux_cp << "\t" << sc.avg_NCXflux_ci
+						 << "\t" << sc.avg_ATP_serca << "\t" << sc.avg_ATP_pmca
+						 << "\t" << sc.avg_ATP_nak   << "\t" << sc.avg_ATP_basal << "\n";
 			mito_summary.flush();
 			mito0_trace << t << "\t" << sc.trace_cp0 << "\t" << sc.trace_cai0 << "\t" << sc.trace_Juni0 << "\t"
 							<< sc.trace_jncx0 << "\t" << sc.trace_ca_mito0 << "\t" << sc.trace_psi_mito0
