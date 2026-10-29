@@ -88,12 +88,12 @@ public:
     };
 
     //Compute ATP Production and Consumption 
-    std::array<double,4>update_ATP_consumption(double ATP, double ADP, double j_up, double j_pmca, double j_nak) const{
+    std::array<double,5>update_ATP_consumption(double ATP, double ADP, double j_up, double j_pmca, double j_nak) const{
     double psp = ATP/ADP; 
     double VATP_basal = k_ATPconsum * (psp / (psp + k_dpspconsum));
     double j_up_ATP = 0.5 * j_up ; 
     double VATP_consum = VATP_basal + j_up_ATP + j_pmca + j_nak;
-    std::array<double, 4> consum = {VATP_basal, j_up_ATP, j_pmca, j_nak};
+    std::array<double, 5> consum = {VATP_basal, j_up_ATP, j_pmca, j_nak, VATP_consum};
     return consum ;
     }
 

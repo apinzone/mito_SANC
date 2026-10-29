@@ -1345,16 +1345,16 @@ void CSubcell::pace(double v, double nai)
       double ADP_local = mito.ADP_buffer_rate * (mito.TAN - ATP_cyto[id]) ;
       double jpca_ATP = jpca_array[id] * (vs/vi) ; 
       double j_nak_local = jnak_ATP * (n / (double)n_tubule) * tubule_flag[id];
-      std::array<double,4> VATP_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local, j_serca[id], jpca_ATP, j_nak_local) ;
-      double total_consumption = VATP_consum[0] + VATP_consum[1] + VATP_consum[2] + VATP_consum[3] ; //take sum of array returned from consumption function fluxes
-      sum_basal_ATP += VATP_consum[0];
-      sum_serca_ATP += VATP_consum[1];
-      sum_pmca_ATP  += VATP_consum[2];
-      sum_nak_ATP   += VATP_consum[3];
+      std::array<double,5> frac_consum = mito.update_ATP_consumption(ATP_cyto[id], ADP_local, j_serca[id], jpca_ATP, j_nak_local) ;
+      double VATP_consum = frac_consum[4] ; //total consumption from mito function
+      sum_basal_ATP += frac_consum[0];
+      sum_serca_ATP += frac_consum[1];
+      sum_pmca_ATP  += frac_consum[2];
+      sum_nak_ATP   += frac_consum[3];
     
       ATP_cyto[id] += dt * (J_ATP_D[id] + ATP_prod_rate[id] - VATP_consum);
       if (id == CRU_producer_status[0]) {
-        trace_consum0 = total_consumption;
+        trace_consum0 = VATP_consum;
         trace_diff0   = J_ATP_D[id];
       }
     }
